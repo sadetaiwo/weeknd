@@ -1,0 +1,13 @@
+---
+description: Keep badge and map pin category colors in sync
+alwaysApply: true
+---
+
+# Category Color Sync
+
+- Treat `categories[*].color` in `index.html` as the single source of truth for category colors.
+- When a category badge color changes, update/verify map pin colors in the same change.
+- Category filter chips, row icon badges, and map pins must use the same base category color value.
+- Prefer helpers (for example `getCategoryColor(...)`) instead of duplicating hex values across UI components.
+- Do not hardcode independent pin color palettes that can drift from badge colors.
+- Map pins render a **gradient** from the category primary (`pinGradientBackground(getCategoryColor(...))`); keep that derived from the same hex, not a separate palette.
