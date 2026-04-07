@@ -805,7 +805,7 @@
           max-width: none;
         }
         .wm-open-sheet-btn {
-          display: inline-flex;
+          display: none;
         }
       }
       @media (min-width: 1024px) {
@@ -871,7 +871,7 @@
             <span id="resultCount" class="wm-count"></span>
           </div>
           <div class="wm-sheet-controls">
-            <button id="closeSheetBtn" class="wm-mini-btn" type="button">Close</button>
+            <button id="closeSheetBtn" class="wm-mini-btn" type="button">Collapse</button>
             <button id="addPlaceBtn" class="wm-mini-btn primary" type="button">Add Place</button>
             <button id="shareBtnSheet" class="wm-mini-btn" type="button">Share</button>
           </div>
@@ -1312,7 +1312,6 @@
           state.sheetClosed = false;
           sheetEl.classList.remove("closed");
           openSheetBtnEl.style.display = "none";
-          openSheetBtnEl.textContent = "Saved Places";
           state.sheetOpen = true;
           sheetEl.classList.add("full");
           sheetEl.classList.remove("peek");
@@ -1320,8 +1319,7 @@
         }
         state.sheetClosed = false;
         sheetEl.classList.remove("closed");
-        openSheetBtnEl.textContent = "Hide Saved Places";
-        openSheetBtnEl.style.display = "inline-flex";
+        openSheetBtnEl.style.display = "none";
         state.sheetOpen = open;
         sheetEl.classList.toggle("full", open);
         sheetEl.classList.toggle("peek", !open);
@@ -1329,10 +1327,8 @@
 
       function closeSheet() {
         if (window.matchMedia("(min-width: 1024px)").matches) return;
-        state.sheetClosed = true;
-        state.sheetOpen = false;
-        sheetEl.classList.add("closed");
-        openSheetBtnEl.textContent = "Saved Places";
+        state.sheetClosed = false;
+        setSheet(false);
       }
 
       function flyToPlace(place) {
@@ -1677,8 +1673,7 @@
         } else if (delta < 0) {
           setSheet(true);
         } else {
-          if (!dragStartOpen) closeSheet();
-          else setSheet(false);
+          setSheet(false);
         }
         dragStartY = null;
       });
@@ -1686,10 +1681,7 @@
       map.on("click", closeDetail);
       addPlaceBtnEl.addEventListener("click", openAddModal);
       closeSheetBtnEl.addEventListener("click", closeSheet);
-      openSheetBtnEl.addEventListener("click", () => {
-        if (state.sheetClosed) setSheet(false);
-        else closeSheet();
-      });
+      openSheetBtnEl.addEventListener("click", () => setSheet(false));
       closeAddModalEl.addEventListener("click", closeAddModal);
       addModalEl.addEventListener("click", (event) => {
         if (event.target === addModalEl) closeAddModal();
@@ -1770,9 +1762,6 @@
       }
 
       setSheet(false);
-      if (window.matchMedia("(max-width: 640px)").matches) {
-        openSheetBtnEl.style.display = "inline-flex";
-      }
       renderCategories();
       renderList();
       syncMarkerVisibility();
