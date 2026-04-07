@@ -318,6 +318,7 @@
         border-radius: 10px;
         display: grid;
         place-items: center;
+        box-shadow: inset 0 0 0 1px rgba(15, 23, 42, 0.06);
       }
       .wm-place-emoji .wm-icon {
         width: 17px;
@@ -1339,6 +1340,30 @@
         return y > 0.62 ? "#111827" : "#ffffff";
       }
 
+      function categoryListBadgeColors(hex) {
+        if (!hex || typeof hex !== "string") {
+          return { bg: "rgba(15, 23, 42, 0.08)", fg: "#3a3a3c" };
+        }
+        let h = hex.replace(/^#/, "");
+        if (h.length === 3) {
+          h = h.split("").map((c) => c + c).join("");
+        }
+        if (h.length !== 6) {
+          return { bg: "rgba(15, 23, 42, 0.08)", fg: "#3a3a3c" };
+        }
+        const r = parseInt(h.slice(0, 2), 16);
+        const g = parseInt(h.slice(2, 4), 16);
+        const b = parseInt(h.slice(4, 6), 16);
+        if (Number.isNaN(r) || Number.isNaN(g) || Number.isNaN(b)) {
+          return { bg: "rgba(15, 23, 42, 0.08)", fg: "#3a3a3c" };
+        }
+        const a = 0.2;
+        return {
+          bg: "rgba(" + r + ", " + g + ", " + b + ", " + a + ")",
+          fg: hex
+        };
+      }
+
       function openPlaceById(id) {
         const place = places.find((p) => Number(p.id) === Number(id));
         openPlace(place);
@@ -1464,9 +1489,10 @@
         resultCountEl.textContent = list.length + " saved places";
         const placeCard = (place) => {
           const cat = categories[place.category];
+          const badge = categoryListBadgeColors(cat.color);
           return (
             '<button class="wm-place" data-id="' + place.id + '">' +
-            '<div class="wm-place-emoji" style="background-color:' + cat.color + ";color:" + contrastTextForBg(cat.color) + '">' +
+            '<div class="wm-place-emoji" style="background-color:' + badge.bg + ";color:" + badge.fg + '">' +
               icons[cat.icon] +
               "</div>" +
             "<div><h3>" + place.name + "</h3><p>" + cat.label + " • " + place.area + "</p></div>" +
