@@ -1092,16 +1092,24 @@
         }
       ];
 
-      /* Category colours: Apple Health–style accents (warm pink, orange, purple, blue) */
+      const CATEGORY_COLORS = {
+        all: "#3A3A3C",
+        cafe: "#FF375F",
+        bakery: "#FF9F0A",
+        deli: "#BF5AF2",
+        restaurant: "#0A84FF"
+      };
+
+      /* Category colours: single source of truth for badges + pins */
       const categories = {
-        cafe: { label: "Cafes", icon: "cafe", color: "#FF375F" },
-        bakery: { label: "Bakery", icon: "bakery", color: "#FF9F0A" },
-        deli: { label: "Delis", icon: "deli", color: "#BF5AF2" },
-        restaurant: { label: "Restaurants", icon: "restaurant", color: "#0A84FF" }
+        cafe: { label: "Cafes", icon: "cafe", color: CATEGORY_COLORS.cafe },
+        bakery: { label: "Bakery", icon: "bakery", color: CATEGORY_COLORS.bakery },
+        deli: { label: "Delis", icon: "deli", color: CATEGORY_COLORS.deli },
+        restaurant: { label: "Restaurants", icon: "restaurant", color: CATEGORY_COLORS.restaurant }
       };
 
       function getCategoryColor(categoryKey) {
-        return categories[categoryKey]?.color || "#3A3A3C";
+        return CATEGORY_COLORS[categoryKey] || CATEGORY_COLORS.all;
       }
 
       const BASE_PLACES = [
@@ -1465,7 +1473,7 @@
 
       function renderCategories() {
         const vis = visiblePlacesForSheet();
-        const entries = [{ key: "all", label: "All", icon: "all", color: "#3A3A3C", count: vis.length }].concat(
+        const entries = [{ key: "all", label: "All", icon: "all", color: CATEGORY_COLORS.all, count: vis.length }].concat(
           Object.entries(categories).map(([key, value]) => ({
             key,
             label: value.label,
