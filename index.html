@@ -217,6 +217,7 @@
       }
       .wm-categories {
         display: flex;
+        align-items: center;
         gap: 8px;
         overflow-x: auto;
         padding: 0 12px 10px;
@@ -226,15 +227,24 @@
         display: none;
       }
       .wm-pill {
-        border: 1px solid #d8ddd1;
+        -webkit-appearance: none;
+        appearance: none;
+        border: 1px solid transparent;
         border-radius: 999px;
-        padding: 8px 12px;
+        box-sizing: border-box;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        gap: 6px;
+        height: 36px;
+        padding: 0 12px;
         font-size: 12px;
         font-weight: 560;
+        line-height: 1;
         cursor: pointer;
         white-space: nowrap;
-        background: transparent;
-        color: #44505f;
+        background: #e5e7eb;
+        color: #111827;
       }
       .wm-icon {
         width: 14px;
@@ -242,13 +252,42 @@
         display: inline-block;
         vertical-align: -2px;
       }
-      .wm-pill .wm-icon {
-        margin-right: 6px;
+      .wm-pill-label {
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+        min-width: 0;
+      }
+      .wm-pill-label .wm-icon {
+        flex-shrink: 0;
+      }
+      .wm-pill-text {
+        white-space: nowrap;
+      }
+      .wm-pill-count {
+        min-width: 24px;
+        height: 24px;
+        padding: 0 7px;
+        border-radius: 999px;
+        font-size: 12px;
+        font-weight: 650;
+        font-variant-numeric: tabular-nums;
+        letter-spacing: -0.02em;
+        line-height: 1;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        flex-shrink: 0;
+        box-sizing: border-box;
+        background: rgba(255, 255, 255, 0.94);
+        color: rgba(60, 60, 67, 0.92);
+        box-shadow:
+          0 1px 2px rgba(0, 0, 0, 0.06),
+          0 2px 8px rgba(0, 0, 0, 0.08),
+          inset 0 1px 0 rgba(255, 255, 255, 1);
       }
       .wm-pill.active {
-        border-color: #1f2937;
-        box-shadow: none;
-        color: #1f2937;
+        box-shadow: inset 0 0 0 2px rgba(15, 23, 42, 0.4);
       }
       .wm-list {
         overflow: auto;
@@ -754,7 +793,8 @@
           font-size: 11px;
         }
         .wm-pill {
-          padding: 10px 13px;
+          height: 40px;
+          padding: 0 13px;
           font-size: 12px;
         }
         .wm-place {
@@ -871,7 +911,6 @@
             <span id="resultCount" class="wm-count"></span>
           </div>
           <div class="wm-sheet-controls">
-            <button id="closeSheetBtn" class="wm-mini-btn" type="button">Collapse</button>
             <button id="addPlaceBtn" class="wm-mini-btn primary" type="button">Add Place</button>
             <button id="shareBtnSheet" class="wm-mini-btn" type="button">Share</button>
           </div>
@@ -1030,11 +1069,12 @@
         }
       ];
 
+      /* Category colours: Apple Health–style accents (warm pink, orange, purple, blue) */
       const categories = {
-        cafe: { label: "Cafes", icon: "cafe", color: "#ed76c1" },
-        bakery: { label: "Bakery", icon: "bakery", color: "#a3d16e" },
-        deli: { label: "Delis", icon: "deli", color: "#d796f8" },
-        restaurant: { label: "Restaurants", icon: "restaurant", color: "#a5e1fa" }
+        cafe: { label: "Cafes", icon: "cafe", color: "#FF375F" },
+        bakery: { label: "Bakery", icon: "bakery", color: "#FF9F0A" },
+        deli: { label: "Delis", icon: "deli", color: "#BF5AF2" },
+        restaurant: { label: "Restaurants", icon: "restaurant", color: "#0A84FF" }
       };
 
       const BASE_PLACES = [
@@ -1045,7 +1085,9 @@
         { id: 5, name: "The Dusty Knuckle Bakery", category: "bakery", lat: 51.5493, lng: -0.0707, area: "Dalston", phone: "+44 20 7249 8222", website: "https://www.thedustyknuckle.com", hours: "8:00am-4:00pm", notes: "Outstanding sourdough and savory buns.", tags: ["sourdough", "bread"] },
         { id: 6, name: "Pophams Islington", category: "bakery", lat: 51.5407, lng: -0.1028, area: "Islington", phone: "+44 20 7490 4575", website: "https://www.pophamsbakery.com", hours: "8:00am-5:00pm", notes: "Flaky pastries and excellent coffee pairing.", tags: ["pastry", "brunch"] },
         { id: 7, name: "Jolene Bakery", category: "bakery", lat: 51.5504, lng: -0.1088, area: "Newington Green", phone: "+44 20 7502 0998", website: "https://www.jolenecafe.com", hours: "8:30am-4:00pm", notes: "Natural wine bakery with superb viennoiserie.", tags: ["viennoiserie", "artisan"] },
-        { id: 8, name: "WatchHouse Somerset House", category: "cafe", lat: 51.5117, lng: -0.1177, area: "Strand", phone: "+44 20 3475 0775", website: "https://www.watchhouse.com", hours: "7:30am-6:00pm", notes: "High quality coffee in a refined central setting.", tags: ["flat white", "workspace"] }
+        { id: 8, name: "WatchHouse Somerset House", category: "cafe", lat: 51.5117, lng: -0.1177, area: "Strand", phone: "+44 20 3475 0775", website: "https://www.watchhouse.com", hours: "7:30am-6:00pm", notes: "High quality coffee in a refined central setting.", tags: ["flat white", "workspace"] },
+        { id: 9, name: "De Beauvoir Deli", category: "deli", lat: 51.5419, lng: -0.0846, area: "De Beauvoir", phone: "+44 20 7249 4321", website: "https://thedebeauvoirdeli.co.uk", hours: "Shop Mon-Sat 8am-8pm, Sun 9am-5pm", notes: "Artisan grocer, takeaway, and café on Southgate Road — cheeses, sandwiches, and brunch favourites.", tags: ["deli", "brunch"] },
+        { id: 10, name: "Tom's Pasta", category: "restaurant", lat: 51.5543, lng: -0.0663, area: "Hackney Downs", phone: "", website: "https://www.tomspasta.co.uk", hours: "Tue-Sat 5:30pm-11pm", notes: "Handmade pasta and lasagne at Hackney Downs Studios — book ahead for dinner.", tags: ["pasta", "italian"] }
       ];
 
       const STORAGE_KEYS = {
@@ -1220,13 +1262,13 @@
       };
 
       const map = L.map("map", { zoomControl: false }).setView([51.5074, -0.1278], 12);
-      L.tileLayer("https://{s}.basemaps.cartocdn.com/light_nolabels/{z}/{x}/{y}{r}.png", {
-        maxZoom: 19,
+      L.tileLayer("https://{s}.basemaps.cartocdn.com/rastertiles/voyager_nolabels/{z}/{x}/{y}{r}.png", {
+        maxZoom: 20,
         subdomains: "abcd",
         attribution: "&copy; OpenStreetMap contributors &copy; CARTO"
       }).addTo(map);
-      L.tileLayer("https://{s}.basemaps.cartocdn.com/light_only_labels/{z}/{x}/{y}{r}.png", {
-        maxZoom: 19,
+      L.tileLayer("https://{s}.basemaps.cartocdn.com/rastertiles/voyager_only_labels/{z}/{x}/{y}{r}.png", {
+        maxZoom: 20,
         subdomains: "abcd",
         pane: "overlayPane",
         attribution: "&copy; OpenStreetMap contributors &copy; CARTO"
@@ -1262,7 +1304,6 @@
       const editingPlaceIdEl = document.getElementById("editingPlaceId");
       const modeBannerEl = document.getElementById("modeBanner");
       const placeGoodToKnowEl = document.getElementById("placeGoodToKnow");
-      const closeSheetBtnEl = document.getElementById("closeSheetBtn");
       const openSheetBtnEl = document.getElementById("openSheetBtn");
 
       function haversine(lat1, lon1, lat2, lon2) {
@@ -1282,6 +1323,20 @@
         const visiblePlaces = isPublicView ? places.filter((p) => p.status !== "draft") : places;
         if (state.activeCategory === "all") return visiblePlaces;
         return visiblePlaces.filter((p) => p.category === state.activeCategory);
+      }
+
+      function contrastTextForBg(hex) {
+        if (!hex || typeof hex !== "string") return "#111827";
+        let h = hex.replace(/^#/, "");
+        if (h.length === 3) {
+          h = h.split("").map((c) => c + c).join("");
+        }
+        const r = parseInt(h.slice(0, 2), 16);
+        const g = parseInt(h.slice(2, 4), 16);
+        const b = parseInt(h.slice(4, 6), 16);
+        if (Number.isNaN(r) || Number.isNaN(g) || Number.isNaN(b)) return "#111827";
+        const y = (0.2126 * r + 0.7152 * g + 0.0722 * b) / 255;
+        return y > 0.62 ? "#111827" : "#ffffff";
       }
 
       function openPlaceById(id) {
@@ -1336,12 +1391,6 @@
         updatePrivateModeBanner();
       }
 
-      function closeSheet() {
-        if (window.matchMedia("(min-width: 1024px)").matches) return;
-        state.sheetClosed = false;
-        setSheet(false);
-      }
-
       function flyToPlace(place) {
         const zoom = 15;
         if (window.matchMedia("(min-width: 1024px)").matches) {
@@ -1354,22 +1403,53 @@
         map.flyTo([place.lat, place.lng], zoom, { duration: 0.8 });
       }
 
+      function visiblePlacesForSheet() {
+        return isPublicView ? places.filter((p) => p.status !== "draft") : places;
+      }
+
       function renderCategories() {
-        const entries = [{ key: "all", label: "All", icon: "all", color: "#0f172a" }].concat(
-          Object.entries(categories).map(([key, value]) => ({ key, label: value.label, icon: value.icon, color: value.color }))
+        const vis = visiblePlacesForSheet();
+        const entries = [{ key: "all", label: "All", icon: "all", color: "#3A3A3C", count: vis.length }].concat(
+          Object.entries(categories).map(([key, value]) => ({
+            key,
+            label: value.label,
+            icon: value.icon,
+            color: value.color,
+            count: vis.filter((p) => p.category === key).length
+          }))
         );
         categoriesEl.innerHTML = entries
           .map((c) => {
             const active = c.key === state.activeCategory;
+            const n = typeof c.count === "number" ? c.count : 0;
+            const aria =
+              c.label + ", " + n + " " + (n === 1 ? "place" : "places");
             return (
-              '<button class="wm-pill ' + (active ? "active" : "") + '" data-category="' + c.key + '">' +
-              icons[c.icon] + c.label +
+              '<button type="button" class="wm-pill ' + (active ? "active" : "") + '" data-category="' + c.key + '"' +
+              ' aria-label="' +
+              aria.replace(/&/g, "&amp;").replace(/"/g, "&quot;").replace(/</g, "&lt;") +
+              '">' +
+              '<span class="wm-pill-label">' +
+              icons[c.icon] +
+              '<span class="wm-pill-text">' +
+              c.label +
+              "</span></span>" +
+              '<span class="wm-pill-count" aria-hidden="true">' +
+              n +
+              "</span>" +
               "</button>"
             );
           })
           .join("");
 
         categoriesEl.querySelectorAll(".wm-pill").forEach((pill) => {
+          const c = entries.find((entry) => entry.key === pill.dataset.category);
+          if (c) {
+            const fg = contrastTextForBg(c.color);
+            pill.style.setProperty("background-color", c.color, "important");
+            pill.style.setProperty("border-color", c.color, "important");
+            pill.style.setProperty("color", fg, "important");
+          }
           pill.addEventListener("click", () => {
             state.activeCategory = pill.dataset.category;
             renderList();
@@ -1386,7 +1466,9 @@
           const cat = categories[place.category];
           return (
             '<button class="wm-place" data-id="' + place.id + '">' +
-            '<div class="wm-place-emoji" style="background:' + cat.color + '22; color:' + cat.color + '">' + icons[cat.icon] + "</div>" +
+            '<div class="wm-place-emoji" style="background-color:' + cat.color + ";color:" + contrastTextForBg(cat.color) + '">' +
+              icons[cat.icon] +
+              "</div>" +
             "<div><h3>" + place.name + "</h3><p>" + cat.label + " • " + place.area + "</p></div>" +
             '<span class="wm-chevron">›</span>' +
             "</button>"
@@ -1717,7 +1799,6 @@
 
       map.on("click", closeDetail);
       addPlaceBtnEl.addEventListener("click", openAddModal);
-      closeSheetBtnEl.addEventListener("click", closeSheet);
       openSheetBtnEl.addEventListener("click", () => setSheet(false));
       closeAddModalEl.addEventListener("click", closeAddModal);
       addModalEl.addEventListener("click", (event) => {
