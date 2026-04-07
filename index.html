@@ -673,7 +673,7 @@
         left: 12px;
         right: 12px;
         bottom: calc(10px + env(safe-area-inset-bottom));
-        z-index: 18;
+        z-index: 34;
         display: none;
       }
       .wm-modal-top {
@@ -803,6 +803,9 @@
           left: 8px;
           right: 8px;
           max-width: none;
+        }
+        .wm-open-sheet-btn {
+          display: inline-flex;
         }
       }
       @media (min-width: 1024px) {
@@ -1309,6 +1312,7 @@
           state.sheetClosed = false;
           sheetEl.classList.remove("closed");
           openSheetBtnEl.style.display = "none";
+          openSheetBtnEl.textContent = "Saved Places";
           state.sheetOpen = true;
           sheetEl.classList.add("full");
           sheetEl.classList.remove("peek");
@@ -1316,7 +1320,8 @@
         }
         state.sheetClosed = false;
         sheetEl.classList.remove("closed");
-        openSheetBtnEl.style.display = "none";
+        openSheetBtnEl.textContent = "Hide Saved Places";
+        openSheetBtnEl.style.display = "inline-flex";
         state.sheetOpen = open;
         sheetEl.classList.toggle("full", open);
         sheetEl.classList.toggle("peek", !open);
@@ -1325,8 +1330,9 @@
       function closeSheet() {
         if (window.matchMedia("(min-width: 1024px)").matches) return;
         state.sheetClosed = true;
+        state.sheetOpen = false;
         sheetEl.classList.add("closed");
-        openSheetBtnEl.style.display = "inline-flex";
+        openSheetBtnEl.textContent = "Saved Places";
       }
 
       function flyToPlace(place) {
@@ -1680,7 +1686,10 @@
       map.on("click", closeDetail);
       addPlaceBtnEl.addEventListener("click", openAddModal);
       closeSheetBtnEl.addEventListener("click", closeSheet);
-      openSheetBtnEl.addEventListener("click", () => setSheet(false));
+      openSheetBtnEl.addEventListener("click", () => {
+        if (state.sheetClosed) setSheet(false);
+        else closeSheet();
+      });
       closeAddModalEl.addEventListener("click", closeAddModal);
       addModalEl.addEventListener("click", (event) => {
         if (event.target === addModalEl) closeAddModal();
@@ -1761,6 +1770,9 @@
       }
 
       setSheet(false);
+      if (window.matchMedia("(max-width: 640px)").matches) {
+        openSheetBtnEl.style.display = "inline-flex";
+      }
       renderCategories();
       renderList();
       syncMarkerVisibility();
