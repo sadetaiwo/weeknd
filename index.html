@@ -659,6 +659,7 @@
         color: #2f3437;
       }
       .pin {
+        box-sizing: border-box;
         border-radius: 999px;
         width: 26px;
         height: 26px;
@@ -667,8 +668,10 @@
         justify-content: center;
         align-content: center;
         color: #fff;
-        border: none;
-        box-shadow: 0 2px 8px rgba(15, 23, 42, 0.35);
+        border: 2px solid #ffffff;
+        box-shadow:
+          0 2px 6px rgba(15, 23, 42, 0.28),
+          0 1px 2px rgba(0, 0, 0, 0.12);
         font-size: 0;
         line-height: 0;
       }
@@ -1113,6 +1116,50 @@
         return CATEGORY_COLORS[categoryKey] || CATEGORY_COLORS.all;
       }
 
+      function hexToRgbComponents(hex) {
+        if (!hex || typeof hex !== "string") return null;
+        let h = hex.replace(/^#/, "");
+        if (h.length === 3) {
+          h = h.split("").map((c) => c + c).join("");
+        }
+        if (h.length !== 6) return null;
+        const r = parseInt(h.slice(0, 2), 16);
+        const g = parseInt(h.slice(2, 4), 16);
+        const b = parseInt(h.slice(4, 6), 16);
+        if (Number.isNaN(r) || Number.isNaN(g) || Number.isNaN(b)) return null;
+        return { r, g, b };
+      }
+
+      function rgbToHex(r, g, b) {
+        return (
+          "#" +
+          [r, g, b]
+            .map((x) =>
+              Math.max(0, Math.min(255, Math.round(x)))
+                .toString(16)
+                .padStart(2, "0")
+            )
+            .join("")
+        );
+      }
+
+      function mixHexWith(hex, targetHex, amount) {
+        const a = hexToRgbComponents(hex);
+        const t = hexToRgbComponents(targetHex);
+        if (!a || !t) return hex;
+        return rgbToHex(
+          a.r + (t.r - a.r) * amount,
+          a.g + (t.g - a.g) * amount,
+          a.b + (t.b - a.b) * amount
+        );
+      }
+
+      function pinGradientBackground(categoryHex) {
+        const top = mixHexWith(categoryHex, "#ffffff", 0.26);
+        const bottom = mixHexWith(categoryHex, "#000000", 0.16);
+        return "linear-gradient(180deg, " + top + ", " + bottom + ")";
+      }
+
       const BASE_PLACES = [
         { id: 1, name: "Monmouth Coffee", category: "cafe", lat: 51.5139, lng: -0.0934, area: "Borough", phone: "+44 20 7378 7408", website: "https://www.monmouthcoffee.co.uk", hours: "7:30am-6:00pm", notes: "Top single-origin espresso near Borough Market.", tags: ["specialty", "espresso"] },
         { id: 2, name: "Regency Cafe", category: "cafe", lat: 51.4937, lng: -0.1327, area: "Pimlico", phone: "+44 20 7821 6596", website: "https://www.instagram.com/regencycafe", hours: "7:00am-2:30pm", notes: "Old-school London breakfast counter with a lot of character.", tags: ["breakfast", "classic"] },
@@ -1409,12 +1456,12 @@
         const cat = categories[place.category];
         if (!cat) return;
         const categoryColor = getCategoryColor(place.category);
-        const pinIconFg = contrastTextForBg(categoryColor);
+        const pinBg = pinGradientBackground(categoryColor);
         const marker = L.marker([place.lat, place.lng], {
           icon: L.divIcon({
             className: "",
             html:
-              '<div class="pin" style="background-color:' + categoryColor + ";color:" + pinIconFg + '">' +
+              '<div class="pin" style="background:' + pinBg + ";color:#ffffff">' +
               icons[cat.icon] +
               "</div>",
             iconSize: [26, 26],
