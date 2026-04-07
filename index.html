@@ -1031,10 +1031,10 @@
       ];
 
       const categories = {
-        cafe: { label: "Cafes", icon: "cafe", color: "#8a6a4e" },
-        bakery: { label: "Bakery", icon: "bakery", color: "#d97706" },
-        deli: { label: "Delis", icon: "deli", color: "#65a30d" },
-        restaurant: { label: "Restaurants", icon: "restaurant", color: "#dc2626" }
+        cafe: { label: "Cafes", icon: "cafe", color: "#ed76c1" },
+        bakery: { label: "Bakery", icon: "bakery", color: "#a3d16e" },
+        deli: { label: "Delis", icon: "deli", color: "#d796f8" },
+        restaurant: { label: "Restaurants", icon: "restaurant", color: "#a5e1fa" }
       };
 
       const BASE_PLACES = [
@@ -1245,7 +1245,6 @@
       const markers = new Map();
 
       const sheetEl = document.getElementById("sheet");
-      const handleEl = document.getElementById("sheetHandle");
       const categoriesEl = document.getElementById("categories");
       const placeListEl = document.getElementById("placeList");
       const detailEl = document.getElementById("detail");
@@ -1307,6 +1306,16 @@
         markers.set(place.id, marker);
       }
 
+      function updatePrivateModeBanner() {
+        if (isPublicView || !modeBannerEl) return;
+        const desktop = window.matchMedia("(min-width: 1024px)").matches;
+        if (desktop) {
+          modeBannerEl.style.display = "block";
+          return;
+        }
+        modeBannerEl.style.display = state.sheetOpen ? "none" : "block";
+      }
+
       function setSheet(open) {
         if (window.matchMedia("(min-width: 1024px)").matches) {
           state.sheetClosed = false;
@@ -1315,6 +1324,7 @@
           state.sheetOpen = true;
           sheetEl.classList.add("full");
           sheetEl.classList.remove("peek");
+          updatePrivateModeBanner();
           return;
         }
         state.sheetClosed = false;
@@ -1323,6 +1333,7 @@
         state.sheetOpen = open;
         sheetEl.classList.toggle("full", open);
         sheetEl.classList.toggle("peek", !open);
+        updatePrivateModeBanner();
       }
 
       function closeSheet() {
@@ -1659,14 +1670,27 @@
       let dragStartY = null;
       let dragStartOpen = false;
 
-      handleEl.addEventListener("click", () => setSheet(!state.sheetOpen));
-      handleEl.addEventListener("pointerdown", (event) => {
+      function sheetDragTargetOk(target) {
+        if (target.closest("button, a, input, select, textarea")) return false;
+        if (target.closest(".wm-place")) return false;
+        if (sheetEl.classList.contains("full") && target.closest(".wm-list")) return false;
+        return true;
+      }
+
+      function onSheetPointerDown(event) {
+        if (window.matchMedia("(min-width: 1024px)").matches) return;
+        if (!sheetDragTargetOk(event.target)) return;
         dragStartY = event.clientY;
         dragStartOpen = state.sheetOpen;
-        handleEl.setPointerCapture(event.pointerId);
-      });
-      handleEl.addEventListener("pointerup", (event) => {
+        sheetEl.setPointerCapture(event.pointerId);
+      }
+
+      function onSheetPointerUp(event) {
         if (dragStartY === null) return;
+        if (window.matchMedia("(min-width: 1024px)").matches) {
+          dragStartY = null;
+          return;
+        }
         const delta = event.clientY - dragStartY;
         if (Math.abs(delta) < 10) {
           setSheet(!dragStartOpen);
@@ -1676,7 +1700,20 @@
           setSheet(false);
         }
         dragStartY = null;
-      });
+        try {
+          sheetEl.releasePointerCapture(event.pointerId);
+        } catch (err) {
+          /* ignore */
+        }
+      }
+
+      function onSheetPointerCancel() {
+        dragStartY = null;
+      }
+
+      sheetEl.addEventListener("pointerdown", onSheetPointerDown);
+      sheetEl.addEventListener("pointerup", onSheetPointerUp);
+      sheetEl.addEventListener("pointercancel", onSheetPointerCancel);
 
       map.on("click", closeDetail);
       addPlaceBtnEl.addEventListener("click", openAddModal);
