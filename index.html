@@ -1821,40 +1821,115 @@
           .join("");
       }
 
-      let dragStartY = null;
-      let dragStartOpen = false;
+      const sheetDrag = {
+        active: false,
+        pointerId: null,
+        startY: 0,
+        startX: 0,
+        startOpen: false,
+        listScroll: 0,
+        origin: null,
+        cancelled: false,
+        windowBound: false
+      };
 
-      function sheetDragTargetOk(target) {
-        if (target.closest(".wm-categories")) return false;
-        if (target.closest(".wm-list")) return false;
-        if (target.closest("button, a, input, select, textarea")) return false;
-        if (target.closest(".wm-place")) return false;
-        return true;
+      function sheetDragInteractiveBlocked(target) {
+        return Boolean(target.closest("button, a, input, select, textarea, .wm-place"));
       }
 
-      function onSheetPointerDown(event) {
-        if (window.matchMedia("(min-width: 1024px)").matches) return;
-        if (!sheetDragTargetOk(event.target)) return;
-        dragStartY = event.clientY;
-        dragStartOpen = state.sheetOpen;
-        sheetEl.setPointerCapture(event.pointerId);
+      function sheetDragTargetAllowsStart(target) {
+        if (sheetDragInteractiveBlocked(target)) return false;
+        return Boolean(target.closest("#sheet"));
       }
 
-      function onSheetPointerUp(event) {
-        if (dragStartY === null) return;
-        if (window.matchMedia("(min-width: 1024px)").matches) {
-          dragStartY = null;
-          return;
-        }
-        const delta = event.clientY - dragStartY;
+      function cleanupSheetWindowDrag() {
+        if (!sheetDrag.windowBound) return;
+        window.removeEventListener("pointermove", onSheetWindowPointerMove);
+        window.removeEventListener("pointerup", onSheetWindowPointerUp);
+        window.removeEventListener("pointercancel", onSheetWindowPointerCancel);
+        sheetDrag.windowBound = false;
+      }
+
+      function applyVerticalSheetGesture(clientY) {
+        if (sheetDrag.cancelled) return;
+        const delta = clientY - sheetDrag.startY;
         if (Math.abs(delta) < 10) {
-          setSheet(!dragStartOpen);
+          setSheet(!sheetDrag.startOpen);
         } else if (delta < 0) {
           setSheet(true);
         } else {
           setSheet(false);
         }
-        dragStartY = null;
+      }
+
+      function onSheetWindowPointerMove(event) {
+        if (event.pointerId !== sheetDrag.pointerId) return;
+        const dx = event.clientX - sheetDrag.startX;
+        const dy = event.clientY - sheetDrag.startY;
+        if (sheetDrag.origin === "categories" && (Math.abs(dx) > 8 || Math.abs(dy) > 8)) {
+          if (Math.abs(dx) >= Math.abs(dy)) {
+            sheetDrag.cancelled = true;
+          }
+        }
+        if (sheetDrag.origin === "list" && placeListEl.scrollTop > sheetDrag.listScroll + 1) {
+          sheetDrag.cancelled = true;
+        }
+      }
+
+      function onSheetWindowPointerUp(event) {
+        if (event.pointerId !== sheetDrag.pointerId) return;
+        cleanupSheetWindowDrag();
+        applyVerticalSheetGesture(event.clientY);
+        sheetDrag.active = false;
+      }
+
+      function onSheetWindowPointerCancel(event) {
+        if (event.pointerId !== sheetDrag.pointerId) return;
+        cleanupSheetWindowDrag();
+        sheetDrag.active = false;
+      }
+
+      function bindSheetWindowDrag() {
+        cleanupSheetWindowDrag();
+        sheetDrag.windowBound = true;
+        window.addEventListener("pointermove", onSheetWindowPointerMove, { passive: true });
+        window.addEventListener("pointerup", onSheetWindowPointerUp, { passive: true });
+        window.addEventListener("pointercancel", onSheetWindowPointerCancel, { passive: true });
+      }
+
+      function onSheetPointerDown(event) {
+        if (window.matchMedia("(min-width: 1024px)").matches) return;
+        if (!sheetDragTargetAllowsStart(event.target)) return;
+        if (sheetDrag.active) return;
+
+        const fromList = event.target.closest(".wm-list");
+        const fromCategories = event.target.closest(".wm-categories");
+
+        sheetDrag.active = true;
+        sheetDrag.pointerId = event.pointerId;
+        sheetDrag.startY = event.clientY;
+        sheetDrag.startX = event.clientX;
+        sheetDrag.startOpen = state.sheetOpen;
+        sheetDrag.listScroll = placeListEl.scrollTop;
+        sheetDrag.cancelled = false;
+        sheetDrag.origin = fromList ? "list" : fromCategories ? "categories" : "chrome";
+
+        if (fromList || fromCategories) {
+          bindSheetWindowDrag();
+          return;
+        }
+        try {
+          sheetEl.setPointerCapture(event.pointerId);
+        } catch (err) {
+          /* ignore */
+        }
+      }
+
+      function onSheetPointerUp(event) {
+        if (event.pointerId !== sheetDrag.pointerId) return;
+        if (sheetDrag.windowBound) return;
+        applyVerticalSheetGesture(event.clientY);
+        sheetDrag.active = false;
         try {
           sheetEl.releasePointerCapture(event.pointerId);
         } catch (err) {
@@ -1863,7 +1938,8 @@
       }
 
       function onSheetPointerCancel() {
-        dragStartY = null;
+        if (sheetDrag.windowBound) return;
+        sheetDrag.active = false;
       }
 
       sheetEl.addEventListener("pointerdown", onSheetPointerDown);
