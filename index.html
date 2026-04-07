@@ -806,7 +806,8 @@
           height: 170px;
         }
         .wm-sheet.full {
-          height: min(82vh, 760px);
+          /* Keep ~24px gap below the Weeknd Mapper header on mobile */
+          height: min(calc(100dvh - 84px - env(safe-area-inset-bottom)), 760px);
         }
         .wm-sheet-controls {
           gap: 6px;
