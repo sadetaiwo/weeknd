@@ -279,15 +279,25 @@
         justify-content: center;
         flex-shrink: 0;
         box-sizing: border-box;
-        background: rgba(255, 255, 255, 0.94);
-        color: rgba(60, 60, 67, 0.92);
+        color: inherit;
+        background: color-mix(in srgb, currentColor 14%, #ffffff);
         box-shadow:
-          0 1px 2px rgba(0, 0, 0, 0.06),
-          0 2px 8px rgba(0, 0, 0, 0.08),
-          inset 0 1px 0 rgba(255, 255, 255, 1);
+          inset 0 0 0 1px color-mix(in srgb, currentColor 30%, transparent),
+          0 1px 2px rgba(0, 0, 0, 0.05);
+      }
+      @supports not (background: color-mix(in srgb, white, black)) {
+        .wm-pill-count {
+          background: rgba(255, 255, 255, 0.82);
+          box-shadow: inset 0 0 0 1px rgba(0, 0, 0, 0.07);
+        }
       }
       .wm-pill.active {
-        box-shadow: inset 0 0 0 2px rgba(15, 23, 42, 0.4);
+        box-shadow: inset 0 0 0 2px color-mix(in srgb, currentColor 38%, transparent);
+      }
+      @supports not (color: color-mix(in srgb, white, black)) {
+        .wm-pill.active {
+          box-shadow: inset 0 0 0 2px rgba(60, 60, 67, 0.35);
+        }
       }
       .wm-list {
         overflow: auto;
@@ -1364,6 +1374,26 @@
         };
       }
 
+      function rgbaFromHex(hex, alpha) {
+        if (!hex || typeof hex !== "string") {
+          return "rgba(15, 23, 42, " + alpha + ")";
+        }
+        let h = hex.replace(/^#/, "");
+        if (h.length === 3) {
+          h = h.split("").map((c) => c + c).join("");
+        }
+        if (h.length !== 6) {
+          return "rgba(15, 23, 42, " + alpha + ")";
+        }
+        const r = parseInt(h.slice(0, 2), 16);
+        const g = parseInt(h.slice(2, 4), 16);
+        const b = parseInt(h.slice(4, 6), 16);
+        if (Number.isNaN(r) || Number.isNaN(g) || Number.isNaN(b)) {
+          return "rgba(15, 23, 42, " + alpha + ")";
+        }
+        return "rgba(" + r + ", " + g + ", " + b + ", " + alpha + ")";
+      }
+
       function openPlaceById(id) {
         const place = places.find((p) => Number(p.id) === Number(id));
         openPlace(place);
@@ -1470,10 +1500,10 @@
         categoriesEl.querySelectorAll(".wm-pill").forEach((pill) => {
           const c = entries.find((entry) => entry.key === pill.dataset.category);
           if (c) {
-            const fg = contrastTextForBg(c.color);
-            pill.style.setProperty("background-color", c.color, "important");
-            pill.style.setProperty("border-color", c.color, "important");
-            pill.style.setProperty("color", fg, "important");
+            const badge = categoryListBadgeColors(c.color);
+            pill.style.setProperty("background-color", badge.bg, "important");
+            pill.style.setProperty("color", c.color, "important");
+            pill.style.setProperty("border-color", rgbaFromHex(c.color, 0.26), "important");
           }
           pill.addEventListener("click", () => {
             state.activeCategory = pill.dataset.category;
