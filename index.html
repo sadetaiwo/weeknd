@@ -175,6 +175,7 @@
         margin: 0;
         font-size: 18px;
         font-weight: 650;
+        color: #111111;
       }
       .wm-count {
         color: var(--muted);
@@ -230,7 +231,7 @@
         scrollbar-width: none;
         -webkit-overflow-scrolling: touch;
         overscroll-behavior-x: contain;
-        touch-action: pan-x;
+        touch-action: auto;
       }
       .wm-categories::-webkit-scrollbar {
         display: none;
@@ -309,7 +310,8 @@
         display: grid;
         gap: 10px;
         -webkit-overflow-scrolling: touch;
-        touch-action: pan-y;
+        touch-action: auto;
+        overscroll-behavior: contain;
       }
       .wm-sheet.peek .wm-list {
         display: none;
@@ -318,40 +320,54 @@
         border: 0;
         width: 100%;
         text-align: left;
-        border-radius: 16px;
+        border-radius: 12px;
         background: #eceee8;
         border: 1px solid #ecece8;
-        padding: 13px;
+        padding: 4px 10px;
         display: grid;
         grid-template-columns: auto 1fr auto;
-        gap: 10px;
+        gap: 8px;
         align-items: center;
         cursor: pointer;
+        box-sizing: border-box;
+        min-height: 36px;
       }
       .wm-place-emoji {
-        width: 34px;
-        height: 34px;
-        border-radius: 10px;
+        width: 26px;
+        height: 26px;
+        border-radius: 8px;
         display: grid;
         place-items: center;
+        flex-shrink: 0;
       }
       .wm-place-emoji .wm-icon {
-        width: 17px;
-        height: 17px;
+        width: 13px;
+        height: 13px;
       }
       .wm-place h3 {
         margin: 0;
-        font-size: 15px;
+        font-size: 13px;
         font-weight: 600;
+        line-height: 1.15;
+        overflow: hidden;
+        display: -webkit-box;
+        -webkit-box-orient: vertical;
+        -webkit-line-clamp: 1;
       }
       .wm-place p {
-        margin: 2px 0 0;
+        margin: 1px 0 0;
         color: var(--muted);
-        font-size: 12px;
+        font-size: 10px;
+        line-height: 1.15;
+        overflow: hidden;
+        display: -webkit-box;
+        -webkit-box-orient: vertical;
+        -webkit-line-clamp: 1;
       }
       .wm-chevron {
         color: #9ca3af;
-        font-size: 18px;
+        font-size: 15px;
+        line-height: 1;
       }
       .wm-accordion {
         border-radius: 14px;
@@ -661,14 +677,18 @@
         height: 26px;
         display: grid;
         place-items: center;
+        justify-content: center;
+        align-content: center;
         color: #fff;
-        border: 2px solid rgba(255, 255, 255, 0.9);
+        border: none;
         box-shadow: 0 2px 8px rgba(15, 23, 42, 0.35);
-        font-size: 13px;
+        font-size: 0;
+        line-height: 0;
       }
       .pin .wm-icon {
         width: 13px;
         height: 13px;
+        display: block;
       }
       .wm-user-dot {
         width: 14px;
@@ -814,13 +834,23 @@
           font-size: 12px;
         }
         .wm-place {
-          padding: 14px 12px;
+          padding: 4px 10px;
+          min-height: 40px;
+          gap: 8px;
+        }
+        .wm-place-emoji {
+          width: 32px;
+          height: 32px;
+        }
+        .wm-place-emoji .wm-icon {
+          width: 15px;
+          height: 15px;
         }
         .wm-place h3 {
-          font-size: 16px;
+          font-size: 13px;
         }
         .wm-place p {
-          font-size: 13px;
+          font-size: 10px;
         }
         .wm-modal {
           padding: 0;
@@ -1388,10 +1418,14 @@
         if (markers.has(place.id)) return;
         const cat = categories[place.category];
         if (!cat) return;
+        const pinIconFg = contrastTextForBg(cat.color);
         const marker = L.marker([place.lat, place.lng], {
           icon: L.divIcon({
             className: "",
-            html: '<div class="pin" style="background:' + cat.color + '">' + icons[cat.icon] + "</div>",
+            html:
+              '<div class="pin" style="background-color:' + cat.color + ";color:" + pinIconFg + '">' +
+              icons[cat.icon] +
+              "</div>",
             iconSize: [26, 26],
             iconAnchor: [13, 13]
           })
@@ -1801,9 +1835,9 @@
 
       function sheetDragTargetOk(target) {
         if (target.closest(".wm-categories")) return false;
+        if (target.closest(".wm-list")) return false;
         if (target.closest("button, a, input, select, textarea")) return false;
         if (target.closest(".wm-place")) return false;
-        if (sheetEl.classList.contains("full") && target.closest(".wm-list")) return false;
         return true;
       }
 
