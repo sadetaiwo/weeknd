@@ -10,6 +10,10 @@
       integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY="
       crossorigin=""
     />
+    <link
+      rel="stylesheet"
+      href="https://fonts.googleapis.com/css2?family=Material+Symbols+Rounded:opsz,wght,FILL,GRAD@20,500,0,0"
+    />
     <style>
       :root {
         --bg: #0b1020;
@@ -43,6 +47,28 @@
       .brand { font-size: 19px; font-weight: 800; letter-spacing: -0.02em; }
       .sub { color: var(--muted); font-size: 12px; margin-top: 2px; }
       .share { margin-left: auto; border: 1px solid var(--line); border-radius: 10px; height: 34px; padding: 0 12px; background: #fff; font-weight: 600; cursor: pointer; }
+      .share {
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+      }
+      .mi {
+        font-family: "Material Symbols Rounded";
+        font-weight: normal;
+        font-style: normal;
+        font-size: 18px;
+        line-height: 1;
+        display: inline-block;
+        letter-spacing: normal;
+        text-transform: none;
+        white-space: nowrap;
+        word-wrap: normal;
+        direction: ltr;
+        -webkit-font-smoothing: antialiased;
+        font-variation-settings: "FILL" 0, "wght" 500, "GRAD" 0, "opsz" 20;
+      }
+      .mi.sm { font-size: 16px; }
+      .mi.fill { font-variation-settings: "FILL" 1, "wght" 500, "GRAD" 0, "opsz" 20; }
       .grab-wrap { padding: 6px 0 2px; display: flex; justify-content: center; cursor: grab; }
       .grab-wrap:active { cursor: grabbing; }
       .grab-handle {
@@ -67,9 +93,7 @@
         padding: 0;
       }
       .panel-hint {
-        font-size: 11px;
-        color: var(--muted);
-        padding: 0 14px 6px;
+        display: none;
       }
       .controls {
         padding: 8px 12px 12px;
@@ -83,8 +107,8 @@
         border: 0;
         background: var(--chip-bg, rgba(255,255,255,0.16));
         color: var(--chip-color, #1f2937);
-        border-radius: 999px; height: 34px; padding: 0 10px;
-        display: inline-flex; align-items: center; justify-content: center; gap: 6px; font-size: 11px; font-weight: 700; white-space: nowrap; cursor: pointer;
+        border-radius: 999px; height: 34px; padding: 0 10px 0 14px;
+        display: inline-flex; align-items: center; justify-content: center; gap: 8px; font-size: 11px; font-weight: 700; white-space: nowrap; cursor: pointer;
         backdrop-filter: blur(22px);
         -webkit-backdrop-filter: blur(22px);
         min-width: 0;
@@ -100,7 +124,7 @@
         padding: 0;
         background: var(--chip-color, #334155);
         color: #fff;
-        font-size: 11px;
+        font-size: 9px;
         line-height: 20px;
         flex: 0 0 20px;
       }
@@ -135,8 +159,50 @@
         backdrop-filter: blur(80px);
         -webkit-backdrop-filter: blur(80px);
         box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.35), 0 16px 36px rgba(15,23,42,.22); z-index: 25; padding: 14px; display: none;
+        overflow: auto;
       }
       .detail.open { display: block; }
+      .detail-top {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 10px;
+      }
+      .detail-controls {
+        display: inline-flex;
+        gap: 8px;
+        align-items: center;
+      }
+      .icon-btn {
+        min-width: 34px;
+        height: 34px;
+        border-radius: 999px;
+        border: 0;
+        background: rgba(255, 255, 255, 0.72);
+        font-size: 14px;
+        font-weight: 700;
+        line-height: 1;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        cursor: pointer;
+        color: #111827;
+        padding: 0 12px;
+        gap: 4px;
+      }
+      .top-pill {
+        height: 34px;
+        padding: 0 12px;
+        border-radius: 999px;
+      }
+      .detail-drag {
+        display: none;
+        justify-content: center;
+        padding: 4px 0 10px;
+      }
+      .detail-drag .grab-handle {
+        opacity: 0.7;
+      }
       .detail h3 { margin: 0; font-size: 22px; letter-spacing: -0.02em; }
       .detail .meta { margin-top: 4px; color: var(--muted); font-size: 13px; }
       .detail .note { margin-top: 10px; font-size: 14px; line-height: 1.45; }
@@ -148,13 +214,25 @@
       }
       .cta-btn {
         border: 0;
-        border-radius: 10px;
-        height: 34px;
-        font-size: 12px;
+        outline: none;
+        box-shadow: none;
+        border-radius: 14px;
+        height: 42px;
+        font-size: 13px;
         font-weight: 700;
-        cursor: pointer;
-        background: rgba(255, 255, 255, 0.68);
-        color: #0f172a;
+        letter-spacing: -0.01em;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        gap: 6px;
+      }
+      .cta-btn-primary {
+        background: #0a84ff;
+        color: #ffffff;
+      }
+      .cta-btn-secondary {
+        background: #eaf4ff;
+        color: #0a84ff;
       }
       .meta-grid {
         margin-top: 10px;
@@ -201,6 +279,25 @@
         background: rgba(255, 255, 255, 0.72);
         color: #0f172a;
         cursor: pointer;
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+      }
+      .pill-btn.is-active {
+        background: rgba(255, 255, 255, 0.9);
+      }
+      .pill-btn-black {
+        background: #111111;
+        color: #ffffff;
+      }
+      .note-box {
+        margin-top: 10px;
+      }
+      .note-box .meta-v {
+        font-size: 12px;
+        font-weight: 500;
+        line-height: 1.4;
+        color: #1f2937;
       }
       .hashes {
         margin-top: 10px;
@@ -223,18 +320,18 @@
       .leaflet-control-zoom { border: 0 !important; box-shadow: 0 10px 20px rgba(2,8,23,.2); }
       .leaflet-control-zoom a { width: 34px !important; height: 34px !important; line-height: 34px !important; }
       .panel.collapsed {
-        height: 86px;
+        height: auto;
+        min-height: 0;
         bottom: auto;
       }
-      .panel.collapsed .controls,
       .panel.collapsed .list {
         display: none;
       }
       .panel.collapsed .collapsed-summary {
-        display: block;
+        display: none;
       }
       .panel.collapsed .panel-hint {
-        padding-bottom: 10px;
+        display: none;
       }
       .panel.snap-medium {
         top: auto;
@@ -249,16 +346,38 @@
 
       @media (max-width: 900px) {
         .panel { width: auto; right: 10px; left: 10px; bottom: 10px; top: auto; max-height: 58vh; border-radius: 20px; }
-        .detail { width: auto; left: 10px; right: 10px; bottom: calc(58vh + 20px); }
+        .mobile-detail-open .panel { display: none; }
+        .detail {
+          width: auto;
+          left: 8px;
+          right: 8px;
+          bottom: 8px;
+          top: auto;
+          max-height: min(86vh, 760px);
+          border-radius: 26px;
+          padding: 12px 12px 14px;
+          transform: translateY(110%);
+          transition: transform 0.24s ease;
+          display: block;
+          pointer-events: none;
+        }
+        .detail.open {
+          transform: translateY(0);
+          pointer-events: auto;
+        }
+        .detail-drag {
+          display: flex;
+        }
         .chevron-toggle { display: none; }
         .panel.collapsed {
-          height: 86px;
+          height: auto;
+          min-height: 0;
           top: auto;
           bottom: 10px;
         }
         .chip {
           font-size: 10px;
-          padding: 0 8px;
+          padding: 0 8px 0 11px;
         }
         .panel.snap-medium {
           height: 56vh;
@@ -283,9 +402,12 @@
             <div class="sub" id="resultCount">0 saved places</div>
           </div>
           <button class="chevron-toggle" id="panelToggleBtn" type="button" aria-expanded="true" aria-label="Collapse panel">▾</button>
-          <button class="share" id="shareBtn" type="button">Share</button>
+          <button class="share" id="shareBtn" type="button">
+            <span class="mi sm" aria-hidden="true">ios_share</span>
+            <span>Share</span>
+          </button>
         </div>
-        <div class="panel-hint" id="panelHint">Drag the card up/down to expand or collapse. Use the arrow button near Share on desktop.</div>
+        <div class="panel-hint" id="panelHint"></div>
         <div class="collapsed-summary" id="collapsedSummary"></div>
         <div id="chips" class="controls"></div>
         <div id="list" class="list"></div>
@@ -304,17 +426,19 @@
         cafe: "#FF375F",
         bakery: "#FF9F0A",
         deli: "#BF5AF2",
-        restaurant: "#0A84FF"
+        restaurant: "#0A84FF",
+        wellness: "#22C55E"
       };
       const categories = {
         cafe: "Cafes",
         bakery: "Bakery",
         deli: "Delis",
-        restaurant: "Restaurants"
+        restaurant: "Restaurants",
+        wellness: "Wellness"
       };
       const places = [
         { id: 1, name: "Monmouth Coffee", category: "cafe", area: "Borough", lat: 51.5139, lng: -0.0934, note: "Top single-origin espresso near Borough Market." },
-        { id: 2, name: "Regency Cafe", category: "cafe", area: "Pimlico", lat: 51.4937, lng: -0.1327, note: "Old-school London breakfast counter with a lot of character." },
+        { id: 2, name: "Regency Cafe", category: "wellness", area: "Pimlico", lat: 51.4937, lng: -0.1327, note: "Old-school London breakfast counter with a lot of character." },
         { id: 3, name: "Kiss the Hippo Fitzrovia", category: "cafe", area: "Fitzrovia", lat: 51.5185, lng: -0.1368, note: "Specialty brews with polished interiors." },
         { id: 4, name: "Fortitude Bakehouse", category: "bakery", area: "Bloomsbury", lat: 51.5186, lng: -0.1317, note: "Excellent laminated pastries and seasonal bakes." },
         { id: 5, name: "The Dusty Knuckle Bakery", category: "bakery", area: "Dalston", lat: 51.5493, lng: -0.0707, note: "Sourdough and savory buns worth the queue." },
@@ -366,6 +490,7 @@
       const panelHintEl = document.getElementById("panelHint");
       const panelGrabEl = document.getElementById("panelGrab");
       const collapsedSummaryEl = document.getElementById("collapsedSummary");
+      const isMobileViewport = () => window.matchMedia("(max-width: 900px)").matches;
 
       function filtered() {
         return state.active === "all" ? places : places.filter((p) => p.category === state.active);
@@ -418,7 +543,7 @@
           : list.length + " saved places";
         listEl.innerHTML = list.map((p) => {
           const color = categoryColors[p.category] || categoryColors.all;
-          const glyph = categories[p.category].slice(0, 1).toUpperCase();
+          const glyph = String(p.name || "").trim().slice(0, 1).toUpperCase() || "?";
           const selectedClass = state.selectedId === p.id ? "selected" : "";
           return '<article class="place ' + selectedClass + '" data-id="' + p.id + '">' +
             '<div class="dot" style="background:' + color + '">' + glyph + "</div>" +
@@ -462,6 +587,16 @@
         return links.join("");
       }
 
+      function closeDetail() {
+        detailEl.classList.remove("open");
+        document.getElementById("app").classList.remove("mobile-detail-open");
+        if (isMobileViewport()) {
+          state.selectedId = null;
+          setPanelCollapsed(false);
+          renderList();
+        }
+      }
+
       function openPlace(id) {
         const p = places.find((x) => x.id === id);
         if (!p) return;
@@ -471,27 +606,36 @@
         const websiteHref = safeUrl(p.website);
         const hashtags = (p.hashtags || []).map((t) => '<span class="hash">#' + t + "</span>").join("");
         detailEl.innerHTML =
-          "<h3>" + p.name + "</h3>" +
+          '<div class="detail-drag" id="detailDrag"><div class="grab-handle"></div></div>' +
+          '<div class="detail-top">' +
+            "<h3>" + p.name + "</h3>" +
+            '<div class="detail-controls">' +
+              '<button class="pill-btn top-pill pill-btn-black" id="detailBackBtn" type="button" aria-label="Back to saved places"><span class="mi sm" aria-hidden="true">arrow_back</span><span>Back</span></button>' +
+              '<button class="pill-btn top-pill ' + (p.liked ? "is-active" : "") + '" id="likeBtn" type="button"><span class="mi sm ' + (p.liked ? "fill" : "") + '" aria-hidden="true">favorite</span>' + (p.liked ? "Liked" : "Like") + "</button>" +
+              '<button class="pill-btn top-pill ' + (p.saved ? "is-active" : "") + '" id="saveBtn" type="button"><span class="mi sm ' + (p.saved ? "fill" : "") + '" aria-hidden="true">bookmark</span>' + (p.saved ? "Saved" : "Save") + "</button>" +
+            "</div>" +
+          "</div>" +
           '<div class="meta">' + categories[p.category] + " · " + p.area + "</div>" +
           '<div class="note">' + p.description + "</div>" +
           '<div class="cta-row">' +
-            '<button class="cta-btn" id="dirBtn" type="button">Directions</button>' +
-            '<button class="cta-btn" id="callBtn" type="button">Call</button>' +
-            '<button class="cta-btn" id="webBtn" type="button">Website</button>' +
+            '<button class="cta-btn cta-btn-primary" id="dirBtn" type="button"><span class="mi sm" aria-hidden="true">route</span>Directions</button>' +
+            '<button class="cta-btn cta-btn-secondary" id="callBtn" type="button"><span class="mi sm" aria-hidden="true">call</span>Call</button>' +
+            '<button class="cta-btn cta-btn-secondary" id="webBtn" type="button"><span class="mi sm" aria-hidden="true">language</span>Website</button>' +
           "</div>" +
           '<div class="meta-grid">' +
             '<div class="meta-box"><div class="meta-k">Hours</div><div class="meta-v">' + p.hours + "</div></div>" +
             '<div class="meta-box"><div class="meta-k">Category</div><div class="meta-v">' + categories[p.category] + "</div></div>" +
           "</div>" +
-          '<div class="pill-row">' +
-            '<button class="pill-btn" id="likeBtn" type="button">' + (p.liked ? "♥ Liked" : "♡ Like") + "</button>" +
-            '<button class="pill-btn" id="saveBtn" type="button">' + (p.saved ? "✓ Saved" : "+ Save") + "</button>" +
-          "</div>" +
-          '<div class="note" style="margin-top:10px;"><strong>Personal notes:</strong> ' + p.note + "</div>" +
+          '<div class="meta-box note-box"><div class="meta-k">Personal notes</div><div class="meta-v">' + p.note + "</div></div>" +
           '<div class="hashes">' + hashtags + "</div>" +
           '<div class="socials">' + socialLinksHtml(p.socials || {}) + "</div>";
         detailEl.classList.add("open");
+        if (isMobileViewport()) {
+          document.getElementById("app").classList.add("mobile-detail-open");
+          setPanelCollapsed(true);
+        }
         renderList();
+        document.getElementById("detailBackBtn").addEventListener("click", closeDetail);
         document.getElementById("dirBtn").addEventListener("click", () => {
           const url = "https://www.google.com/maps/dir/?api=1&destination=" + p.lat + "," + p.lng;
           window.open(url, "_blank");
@@ -511,6 +655,24 @@
         document.getElementById("saveBtn").addEventListener("click", () => {
           p.saved = !p.saved;
           openPlace(p.id);
+        });
+
+        const detailDragEl = document.getElementById("detailDrag");
+        const detailDrag = { active: false, startY: 0 };
+        detailDragEl.addEventListener("pointerdown", (event) => {
+          detailDrag.active = true;
+          detailDrag.startY = event.clientY;
+        });
+        detailDragEl.addEventListener("pointerup", (event) => {
+          if (!detailDrag.active) return;
+          const dy = event.clientY - detailDrag.startY;
+          detailDrag.active = false;
+          if (dy > 26) {
+            closeDetail();
+          }
+        });
+        detailDragEl.addEventListener("pointercancel", () => {
+          detailDrag.active = false;
         });
       }
 
@@ -536,9 +698,7 @@
         panelToggleBtn.textContent = collapsed ? "▴" : "▾";
         panelToggleBtn.setAttribute("aria-label", collapsed ? "Expand panel" : "Collapse panel");
         panelToggleBtn.setAttribute("aria-expanded", String(!collapsed));
-        panelHintEl.textContent = collapsed
-          ? "Card collapsed. Drag up or use the arrow to expand."
-          : "Drag the card down to collapse. Use the arrow near Share on desktop.";
+        panelHintEl.textContent = "";
         requestAnimationFrame(() => map.invalidateSize({ animate: false }));
       }
 
@@ -549,12 +709,7 @@
         panelEl.classList.toggle("snap-full", mode === "full");
         panelToggleBtn.textContent = mode === "collapsed" ? "▴" : "▾";
         panelToggleBtn.setAttribute("aria-expanded", String(mode !== "collapsed"));
-        panelHintEl.textContent =
-          mode === "collapsed"
-            ? "Collapsed. Drag up for medium/full."
-            : mode === "medium"
-            ? "Medium snap. Drag up for full or down to collapse."
-            : "Full snap. Drag down for medium/collapsed.";
+        panelHintEl.textContent = "";
         requestAnimationFrame(() => map.invalidateSize({ animate: false }));
       }
       panelToggleBtn.addEventListener("click", () => {
