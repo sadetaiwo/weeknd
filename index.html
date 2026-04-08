@@ -12,1041 +12,285 @@
     />
     <style>
       :root {
-        --bg: #f6f6f4;
-        --text: #2f3437;
-        --muted: #7d8286;
-        --card: #ffffff;
-        --soft: #efefec;
-        --shadow: 0 8px 26px rgba(35, 39, 42, 0.08);
-        --radius: 22px;
+        --bg: #0b1020;
+        --panel: rgba(255, 255, 255, 0.86);
+        --line: rgba(17, 24, 39, 0.1);
+        --text: #0f172a;
+        --muted: #5b6478;
+        --chip: #e6eaf2;
+        --radius: 18px;
       }
-      * {
-        box-sizing: border-box;
-      }
-      html,
-      body {
-        margin: 0;
-        height: 100%;
-        font-family:
-          "SF Pro Display",
-          "SF Pro Text",
-          -apple-system,
-          BlinkMacSystemFont,
-          "Helvetica Neue",
-          "Segoe UI",
-          sans-serif;
-        -webkit-font-smoothing: antialiased;
-        -moz-osx-font-smoothing: grayscale;
-        color: var(--text);
-        background: var(--bg);
-      }
-      #app {
-        height: 100%;
-        position: relative;
-        overflow: hidden;
-      }
-      #map {
-        position: absolute;
-        inset: 0;
-        z-index: 1;
-        /* Keep marker colors true to category badge primaries */
-        filter: none;
-      }
-      .wm-header {
-        position: absolute;
-        top: 10px;
-        left: 10px;
-        right: 10px;
-        z-index: 30;
-        display: flex;
-        justify-content: center;
-        pointer-events: none;
-      }
-      .wm-header-card {
-        background: rgba(246, 246, 244, 0.24);
-        border: 1px solid #ecece8;
-        border-radius: 14px;
-        padding: 10px 14px;
-        box-shadow: 0 6px 18px rgba(35, 39, 42, 0.05);
-        pointer-events: auto;
-        display: flex;
-        align-items: center;
-        gap: 10px;
-        backdrop-filter: blur(20px);
-      }
-      .wm-header-card h1 {
-        margin: 0;
-        font-size: 18px;
-        font-weight: 600;
-        letter-spacing: 0.2px;
-      }
-      .wm-header-actions {
-        margin-left: auto;
-        display: flex;
-        gap: 8px;
-      }
+      * { box-sizing: border-box; }
+      html, body { margin: 0; height: 100%; font-family: Inter, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; color: var(--text); background: var(--bg); }
+      #app { position: relative; height: 100%; overflow: hidden; }
+      #map { position: absolute; inset: 0; z-index: 1; }
       #map::after {
         content: "";
-        position: absolute;
-        inset: 0;
-        pointer-events: none;
-        background:
-          radial-gradient(circle at 50% 20%, rgba(255, 255, 255, 0.26), transparent 56%),
-          linear-gradient(to bottom, rgba(255, 255, 255, 0.14), rgba(255, 255, 255, 0));
-        z-index: 450;
+        position: absolute; inset: 0; pointer-events: none;
+        background: radial-gradient(circle at 15% 8%, rgba(96,165,250,0.15), transparent 44%), radial-gradient(circle at 78% 88%, rgba(244,114,182,0.18), transparent 36%);
       }
-      .leaflet-control-zoom {
-        border: 0 !important;
-        border-radius: 14px !important;
-        overflow: hidden;
-        box-shadow: 0 10px 24px rgba(15, 23, 42, 0.18);
+      .panel {
+        position: absolute; top: 12px; left: 12px; bottom: 12px; width: 360px; z-index: 30;
+        background: rgba(252, 252, 252, 0.08);
+        backdrop-filter: blur(80px);
+        -webkit-backdrop-filter: blur(80px);
+        border: 1px solid rgba(255, 255, 255, 0.24); border-radius: 22px;
+        box-shadow: 0 16px 40px rgba(2, 8, 23, 0.2);
+        display: flex; flex-direction: column; overflow: hidden;
+        box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.38), 0 16px 40px rgba(2, 8, 23, 0.2);
       }
-      .leaflet-control-zoom a {
-        width: 34px !important;
-        height: 34px !important;
-        line-height: 34px !important;
-        border: 0 !important;
-        background: rgba(255, 255, 255, 0.92) !important;
-        color: #111827 !important;
-      }
-      .leaflet-control-attribution {
-        margin: 0 8px 8px 0 !important;
-        border-radius: 8px !important;
-        background: rgba(255, 255, 255, 0.8) !important;
-        backdrop-filter: blur(8px);
-      }
-      .wm-sheet {
-        position: absolute;
-        left: 10px;
-        right: 10px;
-        bottom: 10px;
-        z-index: 10;
-        border-radius: var(--radius);
-        background: rgba(246, 246, 244, 0.24);
-        border: 1px solid #ecece8;
-        backdrop-filter: blur(20px);
-        box-shadow: var(--shadow);
-        transition: height 0.24s ease, transform 0.24s ease;
-        display: flex;
-        flex-direction: column;
-        min-height: 0;
-        overflow: hidden;
-        touch-action: auto;
-      }
-      .wm-sheet.closed {
-        transform: translateY(calc(100% + 20px));
-        pointer-events: none;
-      }
-      .wm-sheet.peek {
-        height: 152px;
-      }
-      .wm-sheet.full {
-        height: min(72vh, 620px);
-      }
-      .wm-handle-wrap {
-        display: flex;
-        justify-content: center;
-        padding: 10px 0 8px;
-        flex-shrink: 0;
-      }
-      .wm-handle {
-        width: 48px;
+      .header { padding: 14px 14px 6px; display: flex; align-items: center; gap: 8px; }
+      .brand { font-size: 19px; font-weight: 800; letter-spacing: -0.02em; }
+      .sub { color: var(--muted); font-size: 12px; margin-top: 2px; }
+      .share { margin-left: auto; border: 1px solid var(--line); border-radius: 10px; height: 34px; padding: 0 12px; background: #fff; font-weight: 600; cursor: pointer; }
+      .grab-wrap { padding: 6px 0 2px; display: flex; justify-content: center; cursor: grab; }
+      .grab-wrap:active { cursor: grabbing; }
+      .grab-handle {
+        width: 44px;
         height: 5px;
         border-radius: 999px;
-        background: #d7d7d2;
-        cursor: pointer;
+        background: rgba(15, 23, 42, 0.24);
       }
-      .wm-sheet-title {
-        padding: 0 14px 10px;
-        display: flex;
-        justify-content: space-between;
-        align-items: flex-start;
-        flex-shrink: 0;
-      }
-      .wm-sheet-heading {
-        display: grid;
-        gap: 2px;
-      }
-      .wm-sheet-controls {
-        display: flex;
-        align-items: center;
-        gap: 8px;
-      }
-      .wm-sheet-title h1 {
-        margin: 0;
+      .chevron-toggle {
+        margin-left: auto;
+        border: 0;
+        background: transparent;
+        color: #334155;
         font-size: 18px;
-        font-weight: 650;
-        color: #111111;
-      }
-      .wm-count {
-        color: var(--muted);
-        font-size: 10px;
-        letter-spacing: 0.2px;
-        text-transform: uppercase;
-        display: block;
-        line-height: 1.55;
-      }
-      .wm-mini-btn {
-        border: 1px solid #cfd2cb;
-        background: #f2f3ef;
-        color: #111111;
-        border-radius: 10px;
-        height: 38px;
-        padding: 0 12px;
-        font-size: 12px;
-        font-weight: 560;
-        cursor: pointer;
-        display: inline-flex;
-        align-items: center;
-        justify-content: center;
-        white-space: nowrap;
-      }
-      .wm-mini-btn:hover {
-        background: #ebede7;
-      }
-      .wm-mini-btn.primary {
-        background: #111111;
-        border-color: #111111;
-        color: #ffffff;
-      }
-      .wm-mini-btn.primary:hover {
-        background: #1d1d1d;
-      }
-      .wm-mini-btn.danger {
-        background: #dc2626;
-        border-color: #dc2626;
-        color: #ffffff;
-      }
-      .wm-mini-btn.danger:hover {
-        background: #b91c1c;
-      }
-      .wm-categories {
-        display: flex;
-        align-items: center;
-        gap: 8px;
-        flex: 0 0 auto;
-        flex-shrink: 0;
-        overflow-x: auto;
-        overflow-y: hidden;
-        padding: 0 12px 10px;
-        scrollbar-width: none;
-        -webkit-overflow-scrolling: touch;
-        overscroll-behavior-x: contain;
-        touch-action: auto;
-      }
-      .wm-categories::-webkit-scrollbar {
-        display: none;
-      }
-      .wm-pill {
-        -webkit-appearance: none;
-        appearance: none;
-        border: none;
-        border-radius: 999px;
-        box-sizing: border-box;
-        display: inline-flex;
-        align-items: center;
-        justify-content: center;
-        gap: 6px;
-        height: 36px;
-        padding: 0 12px;
-        font-size: 12px;
-        font-weight: 560;
         line-height: 1;
-        cursor: pointer;
-        white-space: nowrap;
-        background: #e5e7eb;
-        color: #111827;
-      }
-      .wm-icon {
-        width: 14px;
-        height: 14px;
-        display: inline-block;
-        vertical-align: -2px;
-      }
-      .wm-pill-label {
+        width: 24px;
+        height: 24px;
         display: inline-flex;
         align-items: center;
+        justify-content: center;
+        cursor: pointer;
+        padding: 0;
+      }
+      .panel-hint {
+        font-size: 11px;
+        color: var(--muted);
+        padding: 0 14px 6px;
+      }
+      .controls {
+        padding: 8px 12px 12px;
+        display: flex;
+        flex-wrap: wrap;
+        align-items: center;
         gap: 6px;
+        overflow: visible;
+      }
+      .chip {
+        border: 0;
+        background: var(--chip-bg, rgba(255,255,255,0.16));
+        color: var(--chip-color, #1f2937);
+        border-radius: 999px; height: 34px; padding: 0 10px;
+        display: inline-flex; align-items: center; justify-content: center; gap: 6px; font-size: 11px; font-weight: 700; white-space: nowrap; cursor: pointer;
+        backdrop-filter: blur(22px);
+        -webkit-backdrop-filter: blur(22px);
         min-width: 0;
       }
-      .wm-pill-label .wm-icon {
-        flex-shrink: 0;
-      }
-      .wm-pill-text {
-        white-space: nowrap;
-      }
-      .wm-pill-count {
-        min-width: 24px;
-        height: 24px;
-        padding: 0 7px;
-        border-radius: 999px;
-        font-size: 12px;
-        font-weight: 650;
-        font-variant-numeric: tabular-nums;
-        letter-spacing: -0.02em;
-        line-height: 1;
+      .chip.active { color: #fff; background: var(--chip-color, #334155); }
+      .count {
+        width: 20px;
+        height: 20px;
+        border-radius: 50%;
         display: inline-flex;
         align-items: center;
         justify-content: center;
-        flex-shrink: 0;
-        box-sizing: border-box;
-        background: var(--pill-primary, #3a3a3c);
-        color: #ffffff;
-        box-shadow: none;
-      }
-      .wm-pill.active {
-        background-color: var(--pill-primary, #3a3a3c) !important;
-        color: #ffffff !important;
-        box-shadow: none;
-      }
-      .wm-pill.active .wm-pill-count {
-        background: rgba(255, 255, 255, 0.22) !important;
-        color: #ffffff !important;
-      }
-      .wm-list {
-        flex: 1 1 auto;
-        min-height: 0;
-        overflow: auto;
-        padding: 0 12px 14px;
-        display: grid;
-        gap: 10px;
-        -webkit-overflow-scrolling: touch;
-        touch-action: auto;
-        overscroll-behavior: contain;
-      }
-      .wm-sheet.peek .wm-list {
-        display: none;
-      }
-      .wm-place {
-        border: 0;
-        width: 100%;
-        text-align: left;
-        border-radius: 16px;
-        background: #eceee8;
-        border: 1px solid #ecece8;
-        padding: 13px;
-        display: grid;
-        grid-template-columns: auto 1fr auto;
-        gap: 10px;
-        align-items: center;
-        cursor: pointer;
-      }
-      .wm-place-emoji {
-        width: 34px;
-        height: 34px;
-        border-radius: 10px;
-        display: grid;
-        place-items: center;
-      }
-      .wm-place-emoji .wm-icon {
-        width: 17px;
-        height: 17px;
-      }
-      .wm-place h3 {
-        margin: 0;
-        font-size: 15px;
-        font-weight: 600;
-      }
-      .wm-place p {
-        margin: 2px 0 0;
-        color: var(--muted);
-        font-size: 12px;
-      }
-      .wm-chevron {
-        color: #9ca3af;
-        font-size: 18px;
-      }
-      .wm-accordion {
-        border-radius: 14px;
-      }
-      .wm-accordion-header {
-        width: 100%;
-        border: 0;
-        background: transparent;
-        border-radius: 12px;
-        padding: 10px 12px;
-        display: flex;
-        align-items: center;
-        justify-content: space-between;
-        font-size: 12px;
-        font-weight: 650;
-        letter-spacing: 0.2px;
-        text-transform: uppercase;
-        color: #4b5563;
-        cursor: pointer;
-      }
-      .wm-accordion-chevron {
-        font-size: 14px;
-        color: #6b7280;
-      }
-      .wm-accordion-body {
-        display: none;
-        gap: 10px;
-        padding-top: 8px;
-      }
-      .wm-accordion-body.open {
-        display: grid;
-      }
-      .wm-empty {
-        color: #8b949c;
-        font-size: 12px;
-        padding: 8px 4px 0;
-      }
-      .wm-detail {
-        position: absolute;
-        left: 10px;
-        right: 10px;
-        bottom: 10px;
-        z-index: 20;
-        border-radius: var(--radius);
-        background: rgba(246, 246, 244, 0.24);
-        border: 1px solid #ecece8;
-        backdrop-filter: blur(20px);
-        box-shadow: var(--shadow);
-        padding: 14px;
-        transform: translateY(120%);
-        transition: transform 0.26s ease;
-      }
-      .wm-detail.open {
-        transform: translateY(0);
-      }
-      .wm-detail-top {
-        display: flex;
-        justify-content: space-between;
-        gap: 10px;
-      }
-      .wm-detail h2 {
-        margin: 0;
-        font-size: 22px;
-        font-weight: 650;
-      }
-      .wm-detail-sub {
-        margin-top: 4px;
-        font-size: 13px;
-        color: var(--muted);
-      }
-      .wm-detail-copy {
-        margin-top: 8px;
-        font-size: 14px;
-        line-height: 1.45;
-        color: #31363a;
-      }
-      .wm-close {
-        border: 0;
-        background: #ecece9;
-        border-radius: 999px;
-        width: 34px;
-        height: 34px;
-        font-size: 16px;
-        cursor: pointer;
-      }
-      .wm-actions {
-        margin-top: 12px;
-        display: grid;
-        grid-template-columns: repeat(3, 1fr);
-        gap: 8px;
-      }
-      .wm-action {
-        border: 1px solid #cfd2cb;
-        background: #f2f3ef;
-        border-radius: 12px;
-        height: 38px;
-        padding: 0 8px;
-        font-size: 12px;
-        font-weight: 560;
-        color: #111111;
-        cursor: pointer;
-        display: inline-flex;
-        align-items: center;
-        justify-content: center;
-        white-space: nowrap;
-      }
-      .wm-like-row {
-        margin-top: 10px;
-      }
-      .wm-public-actions {
-        margin-top: 10px;
-        display: grid;
-        grid-template-columns: 1fr 1fr;
-        gap: 8px;
-      }
-      .wm-like-btn {
-        width: 100%;
-        border: 1px solid #cfd2cb;
-        background: #f2f3ef;
-        border-radius: 12px;
-        height: 38px;
-        padding: 0 12px;
-        font-size: 13px;
-        font-weight: 560;
-        color: #111111;
-        cursor: pointer;
-        display: inline-flex;
-        align-items: center;
-        justify-content: center;
-        white-space: nowrap;
-      }
-      .wm-like-btn.on {
-        border-color: #e77b92;
-        background: #fbe8ee;
-        color: #c03a5b;
-      }
-      .wm-save-btn {
-        width: 100%;
-        border: 1px solid #cfd2cb;
-        background: #f2f3ef;
-        border-radius: 12px;
-        height: 38px;
-        padding: 0 12px;
-        font-size: 13px;
-        font-weight: 560;
-        color: #111111;
-        cursor: pointer;
-        display: inline-flex;
-        align-items: center;
-        justify-content: center;
-        white-space: nowrap;
-      }
-      .wm-save-btn.on {
-        border-color: #111111;
-        background: #111111;
-        color: #ffffff;
-      }
-      .wm-split {
-        margin-top: 12px;
-        display: grid;
-        grid-template-columns: 1fr 1fr;
-        border-radius: 12px;
-        overflow: hidden;
-        border: 1px solid #e8e8e4;
-      }
-      .wm-split > div {
-        padding: 10px;
-        background: #f9f9f7;
-      }
-      .wm-split > div + div {
-        border-left: 1px solid #e8e8e4;
-      }
-      .wm-k {
-        color: var(--muted);
+        padding: 0;
+        background: var(--chip-color, #334155);
+        color: #fff;
         font-size: 11px;
+        line-height: 20px;
+        flex: 0 0 20px;
       }
-      .wm-v {
-        margin-top: 3px;
-        font-size: 13px;
-        font-weight: 600;
-      }
-      .wm-notes {
-        margin-top: 12px;
-        background: #f1f1ee;
-        border-radius: 12px;
-        padding: 10px;
-      }
-      .wm-cover {
-        margin-top: 12px;
-        width: 100%;
-        aspect-ratio: 16 / 9;
-        border-radius: 12px;
-        object-fit: cover;
-        border: 1px solid #e8e8e4;
-        background: #ecece9;
-      }
-      .wm-gallery {
-        margin-top: 10px;
-        display: flex;
-        gap: 8px;
-        overflow-x: auto;
-      }
-      .wm-gallery img {
-        width: 110px;
-        height: 78px;
-        border-radius: 10px;
-        object-fit: cover;
-        border: 1px solid #e8e8e4;
-      }
-      .wm-socials {
-        margin-top: 10px;
-        display: flex;
-        gap: 8px;
-        flex-wrap: wrap;
-      }
-      .wm-socials a {
-        text-decoration: none;
-      }
-      .wm-good-title {
-        margin: 12px 0 6px;
+      .chip.active .count { background: rgba(255,255,255,0.24); }
+      .list { padding: 8px; overflow: auto; display: grid; gap: 8px; }
+      .collapsed-summary {
+        display: none;
+        padding: 0 14px 12px;
+        color: #334155;
         font-size: 12px;
         font-weight: 600;
       }
-      .wm-good-list {
+      .place {
+        border: 1px solid rgba(255, 255, 255, 0.3); border-radius: 14px; background: rgba(252, 252, 252, 0.08);
+        padding: 10px; display: grid; grid-template-columns: 34px 1fr auto; gap: 10px; align-items: center; cursor: pointer;
+        backdrop-filter: blur(36px);
+        -webkit-backdrop-filter: blur(36px);
+        box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.35);
+      }
+      .place:hover { background: rgba(252, 252, 252, 0.16); }
+      .place.selected {
+        background: rgba(252, 252, 252, 0.2);
+        border-color: rgba(255, 255, 255, 0.42);
+      }
+      .dot { width: 34px; height: 34px; border-radius: 10px; display: grid; place-items: center; color: #fff; font-weight: 800; font-size: 13px; }
+      .place h4 { margin: 0; font-size: 14px; }
+      .place p { margin: 2px 0 0; color: var(--muted); font-size: 12px; }
+      .arrow { color: #9ca3af; font-size: 18px; }
+      .detail {
+        position: absolute; right: 12px; bottom: 12px; width: min(430px, calc(100vw - 408px));
+        border: 1px solid rgba(255, 255, 255, 0.24); border-radius: 18px; background: rgba(252, 252, 252, 0.08);
+        backdrop-filter: blur(80px);
+        -webkit-backdrop-filter: blur(80px);
+        box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.35), 0 16px 36px rgba(15,23,42,.22); z-index: 25; padding: 14px; display: none;
+      }
+      .detail.open { display: block; }
+      .detail h3 { margin: 0; font-size: 22px; letter-spacing: -0.02em; }
+      .detail .meta { margin-top: 4px; color: var(--muted); font-size: 13px; }
+      .detail .note { margin-top: 10px; font-size: 14px; line-height: 1.45; }
+      .cta-row {
+        margin-top: 12px;
         display: grid;
+        grid-template-columns: repeat(3, minmax(0, 1fr));
         gap: 8px;
       }
-      .wm-good-item {
-        display: flex;
-        align-items: center;
-        gap: 10px;
-        font-size: 13px;
-        font-weight: 400;
-        color: #7d8286;
-      }
-      .wm-good-icon {
-        width: 14px;
-        height: 14px;
-        color: var(--muted);
-      }
-      .wm-multi-grid {
-        display: grid;
-        grid-template-columns: repeat(2, minmax(0, 1fr));
-        gap: 8px;
-      }
-      .wm-checkbox {
-        display: flex;
-        align-items: center;
-        gap: 8px;
-        font-size: 13px;
-        background: #f4f5f1;
-        border: 1px solid #d9ddd4;
+      .cta-btn {
+        border: 0;
         border-radius: 10px;
+        height: 34px;
+        font-size: 12px;
+        font-weight: 700;
+        cursor: pointer;
+        background: rgba(255, 255, 255, 0.68);
+        color: #0f172a;
+      }
+      .meta-grid {
+        margin-top: 10px;
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 8px;
+      }
+      .meta-box {
+        border: 1px solid rgba(255, 255, 255, 0.24);
+        border-radius: 12px;
+        background: rgba(255, 255, 255, 0.24);
         padding: 8px 10px;
       }
-      .wm-notes h4 {
-        margin: 0 0 6px;
-        font-size: 12px;
-      }
-      .wm-notes p {
-        margin: 0;
-        font-size: 13px;
-        color: #334155;
-        line-height: 1.4;
-      }
-      .wm-tags {
+      .meta-k { font-size: 11px; color: var(--muted); }
+      .meta-v { margin-top: 3px; font-size: 13px; font-weight: 700; }
+      .socials {
         margin-top: 10px;
         display: flex;
-        gap: 3px;
+        gap: 8px;
         flex-wrap: wrap;
       }
-      .wm-tag {
-        font-size: 10px;
-        font-weight: 560;
-        letter-spacing: 0.2px;
-        text-transform: uppercase;
-        background: transparent;
-        color: #4b5563;
+      .social-link {
         border: 0;
-        padding: 4px 9px;
         border-radius: 999px;
+        padding: 6px 12px;
+        font-size: 12px;
+        color: #0f172a;
+        text-decoration: none;
+        background: rgba(255, 255, 255, 0.72);
       }
-      .wm-status-chip {
-        display: none;
-      }
-      .wm-toggles {
-        margin-top: 12px;
+      .pill-row {
+        margin-top: 10px;
         display: flex;
         gap: 8px;
+        flex-wrap: wrap;
       }
-      .wm-toggle {
-        border: 1px solid #d8d9d4;
-        background: #f8f8f6;
+      .pill-btn {
+        border: 0;
         border-radius: 999px;
-        padding: 7px 10px;
+        height: 30px;
+        padding: 0 12px;
         font-size: 12px;
+        font-weight: 700;
+        background: rgba(255, 255, 255, 0.72);
+        color: #0f172a;
         cursor: pointer;
       }
-      .wm-toggle.on {
-        border-color: #3f464b;
-        background: #e8ebed;
-        color: #2f3437;
+      .hashes {
+        margin-top: 10px;
+        display: flex;
+        gap: 6px;
+        flex-wrap: wrap;
+      }
+      .hash {
+        border-radius: 999px;
+        padding: 4px 9px;
+        font-size: 11px;
+        color: #334155;
+        background: rgba(255, 255, 255, 0.42);
       }
       .pin {
-        box-sizing: border-box;
-        border-radius: 999px;
-        width: 26px;
-        height: 26px;
-        display: grid;
-        place-items: center;
-        justify-content: center;
-        align-content: center;
-        color: #fff;
-        border: 2px solid #ffffff;
-        box-shadow:
-          0 2px 6px rgba(15, 23, 42, 0.28),
-          0 1px 2px rgba(0, 0, 0, 0.12);
-        font-size: 0;
-        line-height: 0;
+        width: 28px; height: 28px; border-radius: 999px; border: 2px solid #fff;
+        box-shadow: 0 6px 16px rgba(15,23,42,.25); display: grid; place-items: center; color: #fff;
+        font-size: 12px; font-weight: 800;
       }
-      .pin .wm-icon {
-        width: 13px;
-        height: 13px;
+      .leaflet-control-zoom { border: 0 !important; box-shadow: 0 10px 20px rgba(2,8,23,.2); }
+      .leaflet-control-zoom a { width: 34px !important; height: 34px !important; line-height: 34px !important; }
+      .panel.collapsed {
+        height: 86px;
+        bottom: auto;
+      }
+      .panel.collapsed .controls,
+      .panel.collapsed .list {
+        display: none;
+      }
+      .panel.collapsed .collapsed-summary {
         display: block;
       }
-      .wm-user-dot {
-        width: 14px;
-        height: 14px;
-        border-radius: 999px;
-        background: #1d9bf0;
-        border: 2px solid #ffffff;
-        box-shadow: 0 0 0 6px rgba(29, 155, 240, 0.2);
+      .panel.collapsed .panel-hint {
+        padding-bottom: 10px;
       }
-      .wm-modal {
-        position: absolute;
-        inset: 0;
-        z-index: 40;
-        background: rgba(17, 24, 39, 0.2);
-        display: none;
-        place-items: center;
-        padding: 16px;
+      .panel.snap-medium {
+        top: auto;
+        bottom: 10px;
+        height: 52vh;
       }
-      .wm-modal.open {
-        display: grid;
+      .panel.snap-full {
+        top: 10px;
+        bottom: 10px;
+        height: auto;
       }
-      .wm-modal-card {
-        width: min(560px, 100%);
-        max-height: 90vh;
-        overflow: auto;
-        border-radius: 16px;
-        background: #f8f8f6;
-        border: 1px solid #e7e8e3;
-        box-shadow: 0 16px 34px rgba(17, 24, 39, 0.18);
-        padding: 14px;
-      }
-      .wm-mode-banner {
-        position: absolute;
-        top: 72px;
-        right: 12px;
-        z-index: 28;
-        max-width: 360px;
-        border-radius: 14px;
-        border: 1px solid #ecece8;
-        background: rgba(248, 248, 246, 0.24);
-        box-shadow: 0 8px 20px rgba(35, 39, 42, 0.12);
-        padding: 10px 12px;
-        display: none;
-        backdrop-filter: blur(20px);
-      }
-      .wm-mode-banner h3 {
-        margin: 0;
-        font-size: 14px;
-      }
-      .wm-mode-banner p {
-        margin: 4px 0 0;
-        font-size: 12px;
-        color: var(--muted);
-      }
-      .wm-open-sheet-btn {
-        position: absolute;
-        left: 12px;
-        right: 12px;
-        bottom: calc(10px + env(safe-area-inset-bottom));
-        z-index: 34;
-        display: none;
-      }
-      .wm-modal-top {
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-        margin-bottom: 10px;
-      }
-      .wm-modal-top h3 {
-        margin: 0;
-        font-size: 18px;
-      }
-      .wm-form-grid {
-        display: grid;
-        grid-template-columns: 1fr 1fr;
-        gap: 10px;
-      }
-      .wm-field {
-        display: grid;
-        gap: 4px;
-      }
-      .wm-field.full {
-        grid-column: 1 / -1;
-      }
-      .wm-field label {
-        font-size: 12px;
-        color: #5f656a;
-      }
-      .wm-field input:not([type="checkbox"]),
-      .wm-field select,
-      .wm-field textarea {
-        width: 100%;
-        border: 1px solid #d8d9d4;
-        background: #fff;
-        border-radius: 10px;
-        padding: 10px;
-        font: inherit;
-        color: var(--text);
-      }
-      .wm-field textarea {
-        min-height: 80px;
-        resize: vertical;
-      }
-      .wm-modal-actions {
-        margin-top: 12px;
-        display: flex;
-        justify-content: flex-end;
-        gap: 8px;
-      }
-      @media (max-width: 640px) {
-        .wm-header-card h1 {
-          font-size: 16px;
+
+      @media (max-width: 900px) {
+        .panel { width: auto; right: 10px; left: 10px; bottom: 10px; top: auto; max-height: 58vh; border-radius: 20px; }
+        .detail { width: auto; left: 10px; right: 10px; bottom: calc(58vh + 20px); }
+        .chevron-toggle { display: none; }
+        .panel.collapsed {
+          height: 86px;
+          top: auto;
+          bottom: 10px;
         }
-        .wm-header-actions {
-          display: none;
+        .chip {
+          font-size: 10px;
+          padding: 0 8px;
         }
-        .wm-header {
+        .panel.snap-medium {
+          height: 56vh;
+        }
+        .panel.snap-full {
           top: 8px;
-          left: 8px;
-          right: 8px;
-        }
-        .wm-sheet {
-          left: 8px;
-          right: 8px;
-          bottom: calc(8px + env(safe-area-inset-bottom));
-        }
-        .wm-sheet.peek {
-          height: 170px;
-        }
-        .wm-sheet.full {
-          /* Keep ~24px gap below the Weeknd Mapper header on mobile */
-          height: min(calc(100dvh - 84px - env(safe-area-inset-bottom)), 760px);
-        }
-        .wm-sheet-controls {
-          gap: 6px;
-        }
-        .wm-sheet-controls .wm-mini-btn {
-          padding: 8px 10px;
-          font-size: 11px;
-        }
-        .wm-pill {
-          height: 40px;
-          padding: 0 13px;
-          font-size: 12px;
-        }
-        .wm-place {
-          padding: 14px 12px;
-        }
-        .wm-place h3 {
-          font-size: 16px;
-        }
-        .wm-place p {
-          font-size: 13px;
-        }
-        .wm-modal {
-          padding: 0;
-          align-items: end;
-        }
-        .wm-modal-card {
-          width: 100%;
-          max-height: 92vh;
-          border-radius: 18px 18px 0 0;
-          border-left: 0;
-          border-right: 0;
-          border-bottom: 0;
-          padding: 14px 12px calc(14px + env(safe-area-inset-bottom));
-        }
-        .wm-form-grid {
-          grid-template-columns: 1fr;
-        }
-        .wm-multi-grid {
-          grid-template-columns: 1fr;
-        }
-        .wm-modal-actions {
-          position: sticky;
-          bottom: 0;
-          background: #f8f8f6;
-          padding-top: 10px;
-        }
-        .wm-detail {
-          left: 8px;
-          right: 8px;
-          bottom: calc(8px + env(safe-area-inset-bottom));
-          max-height: 78vh;
-          overflow: auto;
-        }
-        .wm-mode-banner {
-          top: 64px;
-          left: 8px;
-          right: 8px;
-          max-width: none;
-        }
-        .wm-open-sheet-btn {
-          display: none;
-        }
-      }
-      @media (min-width: 1024px) {
-        .wm-header {
-          left: 12px;
-          right: auto;
-          width: 360px;
-          justify-content: flex-start;
-          top: 12px;
-        }
-        .wm-header-card {
-          width: 100%;
-          border-radius: 16px;
-          padding: 12px 14px;
-        }
-        .wm-sheet {
-          top: 76px;
-          bottom: 12px;
-          left: 12px;
-          right: auto;
-          width: 360px;
-          border-radius: 18px;
-          height: auto !important;
-        }
-        .wm-sheet.peek .wm-list {
-          display: grid;
-        }
-        .wm-handle-wrap {
-          display: none;
-        }
-        .wm-sheet-title {
-          padding-top: 14px;
-        }
-        .wm-sheet-controls #shareBtnSheet {
-          display: none;
-        }
-        .wm-detail {
-          left: 388px;
-          right: 14px;
-          max-width: 460px;
+          bottom: 8px;
         }
       }
     </style>
   </head>
   <body>
     <div id="app">
-      <header class="wm-header">
-        <div class="wm-header-card">
-          <h1>Weeknd Mapper</h1>
-          <div class="wm-header-actions">
-            <button id="shareBtnHeader" class="wm-mini-btn" type="button">Share</button>
-          </div>
-        </div>
-      </header>
       <div id="map"></div>
-      <section id="sheet" class="wm-sheet peek" aria-label="Saved places">
-        <div class="wm-handle-wrap">
-          <div class="wm-handle" id="sheetHandle" aria-label="Toggle list view"></div>
+      <section class="panel">
+        <div class="grab-wrap" id="panelGrab" aria-label="Drag to resize panel">
+          <div class="grab-handle"></div>
         </div>
-        <div class="wm-sheet-title">
-          <div class="wm-sheet-heading">
-            <h1>Saved Places</h1>
-            <span id="resultCount" class="wm-count"></span>
+        <div class="header">
+          <div>
+            <div class="brand">Weeknd Mapper</div>
+            <div class="sub" id="resultCount">0 saved places</div>
           </div>
-          <div class="wm-sheet-controls">
-            <button id="addPlaceBtn" class="wm-mini-btn primary" type="button">Add Place</button>
-            <button id="shareBtnSheet" class="wm-mini-btn" type="button">Share</button>
-          </div>
+          <button class="chevron-toggle" id="panelToggleBtn" type="button" aria-expanded="true" aria-label="Collapse panel">▾</button>
+          <button class="share" id="shareBtn" type="button">Share</button>
         </div>
-        <div id="categories" class="wm-categories"></div>
-        <div id="placeList" class="wm-list"></div>
+        <div class="panel-hint" id="panelHint">Drag the card up/down to expand or collapse. Use the arrow button near Share on desktop.</div>
+        <div class="collapsed-summary" id="collapsedSummary"></div>
+        <div id="chips" class="controls"></div>
+        <div id="list" class="list"></div>
       </section>
-      <aside id="detail" class="wm-detail" aria-live="polite"></aside>
-      <section id="modeBanner" class="wm-mode-banner" aria-live="polite">
-        <h3>Private CMS View</h3>
-        <p>Add, edit, and delete places. Share links are public read-only guides.</p>
-      </section>
-      <button id="openSheetBtn" class="wm-mini-btn primary wm-open-sheet-btn" type="button">Saved Places</button>
-      <div id="addModal" class="wm-modal" aria-hidden="true">
-        <div class="wm-modal-card">
-          <div class="wm-modal-top">
-            <h3 id="placeModalTitle">Add Place</h3>
-            <button id="closeAddModal" class="wm-close" type="button" aria-label="Close add place form">✕</button>
-          </div>
-          <form id="addPlaceForm">
-            <input type="hidden" id="editingPlaceId" name="editingPlaceId" />
-            <div class="wm-form-grid">
-              <div class="wm-field full">
-                <label for="placeName">Name</label>
-                <input id="placeName" name="name" required />
-              </div>
-              <div class="wm-field">
-                <label for="placeCategory">Category</label>
-                <select id="placeCategory" name="category" required></select>
-              </div>
-              <div class="wm-field">
-                <label for="placeArea">Area</label>
-                <input id="placeArea" name="area" required />
-              </div>
-              <div class="wm-field">
-                <label for="placeLat">Latitude</label>
-                <input id="placeLat" name="lat" type="number" step="any" required />
-              </div>
-              <div class="wm-field">
-                <label for="placeLng">Longitude</label>
-                <input id="placeLng" name="lng" type="number" step="any" required />
-              </div>
-              <div class="wm-field full">
-                <label for="placeWebsite">Website</label>
-                <input id="placeWebsite" name="website" type="url" placeholder="https://..." />
-              </div>
-              <div class="wm-field full">
-                <label for="placeSummary">Short Description</label>
-                <textarea id="placeSummary" name="summary" placeholder="A short 1-2 line description for the detail card."></textarea>
-              </div>
-              <div class="wm-field full">
-                <label for="placeCoverPhoto">Cover Photo URL</label>
-                <input id="placeCoverPhoto" name="coverPhoto" type="url" placeholder="https://..." />
-              </div>
-              <div class="wm-field full">
-                <label for="placeGalleryUrls">Gallery Photo URLs (comma-separated)</label>
-                <input id="placeGalleryUrls" name="galleryUrls" placeholder="https://... , https://..." />
-              </div>
-              <div class="wm-field">
-                <label for="placePhone">Phone</label>
-                <input id="placePhone" name="phone" placeholder="+44 ..." />
-              </div>
-              <div class="wm-field">
-                <label for="placeHours">Hours</label>
-                <input id="placeHours" name="hours" placeholder="e.g. 9:00am-5:00pm" />
-              </div>
-              <div class="wm-field">
-                <label for="placeStatus">Status</label>
-                <select id="placeStatus" name="status">
-                  <option value="published">Published</option>
-                  <option value="draft">Draft</option>
-                </select>
-              </div>
-              <div class="wm-field full">
-                <label for="placeTags">Tags (comma-separated)</label>
-                <input id="placeTags" name="tags" placeholder="coffee, date-night, outdoors" />
-              </div>
-              <div class="wm-field full">
-                <label>Good to Know (multi-select)</label>
-                <div id="placeGoodToKnow" class="wm-multi-grid"></div>
-              </div>
-              <div class="wm-field">
-                <label for="placeInstagram">Instagram</label>
-                <input id="placeInstagram" name="instagram" placeholder="https://instagram.com/..." />
-              </div>
-              <div class="wm-field">
-                <label for="placeTiktok">TikTok</label>
-                <input id="placeTiktok" name="tiktok" placeholder="https://tiktok.com/@..." />
-              </div>
-              <div class="wm-field">
-                <label for="placeX">X / Twitter</label>
-                <input id="placeX" name="x" placeholder="https://x.com/..." />
-              </div>
-              <div class="wm-field">
-                <label for="placeYoutube">YouTube</label>
-                <input id="placeYoutube" name="youtube" placeholder="https://youtube.com/..." />
-              </div>
-              <div class="wm-field full">
-                <label for="placeNotes">Personal Notes</label>
-                <textarea id="placeNotes" name="notes"></textarea>
-              </div>
-            </div>
-            <div class="wm-modal-actions">
-              <button id="useMapCenterBtn" class="wm-mini-btn" type="button">Use Map Center</button>
-              <button id="savePlaceBtn" class="wm-mini-btn primary" type="submit">Save Place</button>
-            </div>
-          </form>
-        </div>
-      </div>
+      <aside id="detail" class="detail" aria-live="polite"></aside>
     </div>
 
     <script
@@ -1055,1031 +299,312 @@
       crossorigin=""
     ></script>
     <script>
-      const icons = {
-        all: '<svg class="wm-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 10c0 6-8 12-8 12S4 16 4 10a8 8 0 1 1 16 0Z"></path><circle cx="12" cy="10" r="3"></circle></svg>',
-        cafe: '<svg class="wm-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 8h13v8a4 4 0 0 1-4 4H7a4 4 0 0 1-4-4V8Z"></path><path d="M16 10h2a2 2 0 1 1 0 4h-2"></path><path d="M6 4v2M10 4v2M14 4v2"></path></svg>',
-        bakery: '<svg class="wm-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 14c0-3 2.5-5.5 5.5-5.5 1.6 0 3 .6 4 1.8 1-.9 2.2-1.3 3.6-1.3 2.8 0 4.9 2.1 4.9 5v3H4v-3Z"></path><path d="M4 17h18v3H4z"></path><path d="M11 6c0-1.6 1.2-3 2.8-3"></path></svg>',
-        deli: '<svg class="wm-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 7h16v10H4z"></path><path d="M7 11h10"></path><path d="M8 7V5h8v2"></path><circle cx="8" cy="16" r="1"></circle><circle cx="16" cy="16" r="1"></circle></svg>',
-        restaurant: '<svg class="wm-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 3v8"></path><path d="M8 3v8"></path><path d="M6 3v18"></path><path d="M14 3h1a3 3 0 0 1 3 3v15"></path><path d="M14 8h4"></path></svg>'
-      };
-
-      const goodToKnowOptions = [
-        {
-          key: "parking",
-          label: "Parking",
-          icon: '<svg class="wm-icon wm-good-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12l1.5-4h11L19 12"></path><path d="M4 12h16v5H4z"></path><circle cx="7.5" cy="17" r="1.5"></circle><circle cx="16.5" cy="17" r="1.5"></circle></svg>'
-        },
-        {
-          key: "wifi",
-          label: "Free Wi-Fi",
-          icon: '<svg class="wm-icon wm-good-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 9a12 12 0 0 1 14 0"></path><path d="M8 12a8 8 0 0 1 8 0"></path><path d="M11 15a4 4 0 0 1 2 0"></path><circle cx="12" cy="18" r="1"></circle></svg>'
-        },
-        {
-          key: "aircon",
-          label: "Air Conditioning",
-          icon: '<svg class="wm-icon wm-good-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2v20"></path><path d="M4.9 6 19 18"></path><path d="M19.1 6 5 18"></path></svg>'
-        },
-        {
-          key: "outdoor",
-          label: "Outdoor Seating",
-          icon: '<svg class="wm-icon wm-good-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 12h16"></path><path d="M7 12v7M17 12v7"></path><path d="M12 3v9"></path><path d="M9 6h6"></path></svg>'
-        },
-        {
-          key: "petfriendly",
-          label: "Pet Friendly",
-          icon: '<svg class="wm-icon wm-good-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="8" cy="8" r="2"></circle><circle cx="16" cy="8" r="2"></circle><circle cx="6" cy="13" r="2"></circle><circle cx="18" cy="13" r="2"></circle><path d="M9 17c1.5-2 4.5-2 6 0 1.2 1.6-.2 4-3 4s-4.2-2.4-3-4Z"></path></svg>'
-        },
-        {
-          key: "wheelchair",
-          label: "Wheelchair Access",
-          icon: '<svg class="wm-icon wm-good-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="8" cy="6" r="2"></circle><path d="M10 8h3l2 3"></path><path d="M7 10h4l-1 4 3 3"></path><circle cx="9" cy="18" r="4"></circle><path d="M13 18h4"></path></svg>'
-        }
-      ];
-
-      const CATEGORY_COLORS = {
-        all: "#3A3A3C",
+      const categoryColors = {
+        all: "#334155",
         cafe: "#FF375F",
         bakery: "#FF9F0A",
         deli: "#BF5AF2",
         restaurant: "#0A84FF"
       };
-
-      /* Category colours: single source of truth for badges + pins */
       const categories = {
-        cafe: { label: "Cafes", icon: "cafe", color: CATEGORY_COLORS.cafe },
-        bakery: { label: "Bakery", icon: "bakery", color: CATEGORY_COLORS.bakery },
-        deli: { label: "Delis", icon: "deli", color: CATEGORY_COLORS.deli },
-        restaurant: { label: "Restaurants", icon: "restaurant", color: CATEGORY_COLORS.restaurant }
+        cafe: "Cafes",
+        bakery: "Bakery",
+        deli: "Delis",
+        restaurant: "Restaurants"
       };
-
-      function getCategoryColor(categoryKey) {
-        return CATEGORY_COLORS[categoryKey] || CATEGORY_COLORS.all;
-      }
-
-      function hexToRgbComponents(hex) {
-        if (!hex || typeof hex !== "string") return null;
-        let h = hex.replace(/^#/, "");
-        if (h.length === 3) {
-          h = h.split("").map((c) => c + c).join("");
-        }
-        if (h.length !== 6) return null;
-        const r = parseInt(h.slice(0, 2), 16);
-        const g = parseInt(h.slice(2, 4), 16);
-        const b = parseInt(h.slice(4, 6), 16);
-        if (Number.isNaN(r) || Number.isNaN(g) || Number.isNaN(b)) return null;
-        return { r, g, b };
-      }
-
-      function rgbToHex(r, g, b) {
-        return (
-          "#" +
-          [r, g, b]
-            .map((x) =>
-              Math.max(0, Math.min(255, Math.round(x)))
-                .toString(16)
-                .padStart(2, "0")
-            )
-            .join("")
-        );
-      }
-
-      function mixHexWith(hex, targetHex, amount) {
-        const a = hexToRgbComponents(hex);
-        const t = hexToRgbComponents(targetHex);
-        if (!a || !t) return hex;
-        return rgbToHex(
-          a.r + (t.r - a.r) * amount,
-          a.g + (t.g - a.g) * amount,
-          a.b + (t.b - a.b) * amount
-        );
-      }
-
-      function pinGradientBackground(categoryHex) {
-        const top = mixHexWith(categoryHex, "#ffffff", 0.26);
-        const bottom = mixHexWith(categoryHex, "#000000", 0.16);
-        return "linear-gradient(180deg, " + top + ", " + bottom + ")";
-      }
-
-      const BASE_PLACES = [
-        { id: 1, name: "Monmouth Coffee", category: "cafe", lat: 51.5139, lng: -0.0934, area: "Borough", phone: "+44 20 7378 7408", website: "https://www.monmouthcoffee.co.uk", hours: "7:30am-6:00pm", notes: "Top single-origin espresso near Borough Market.", tags: ["specialty", "espresso"] },
-        { id: 2, name: "Regency Cafe", category: "cafe", lat: 51.4937, lng: -0.1327, area: "Pimlico", phone: "+44 20 7821 6596", website: "https://www.instagram.com/regencycafe", hours: "7:00am-2:30pm", notes: "Old-school London breakfast counter with a lot of character.", tags: ["breakfast", "classic"] },
-        { id: 3, name: "Kiss the Hippo Fitzrovia", category: "cafe", lat: 51.5185, lng: -0.1368, area: "Fitzrovia", phone: "+44 20 3948 4504", website: "https://www.kissthehippo.com", hours: "7:30am-6:00pm", notes: "Well-balanced specialty brews and polished interior.", tags: ["specialty", "pour-over"] },
-        { id: 4, name: "Fortitude Bakehouse", category: "bakery", lat: 51.5186, lng: -0.1317, area: "Bloomsbury", phone: "+44 20 3105 0290", website: "https://www.fortitudebakehouse.com", hours: "8:00am-4:00pm", notes: "Excellent laminated pastries and seasonal bakes.", tags: ["pastries", "weekend"] },
-        { id: 5, name: "The Dusty Knuckle Bakery", category: "bakery", lat: 51.5493, lng: -0.0707, area: "Dalston", phone: "+44 20 7249 8222", website: "https://www.thedustyknuckle.com", hours: "8:00am-4:00pm", notes: "Outstanding sourdough and savory buns.", tags: ["sourdough", "bread"] },
-        { id: 6, name: "Pophams Islington", category: "bakery", lat: 51.5407, lng: -0.1028, area: "Islington", phone: "+44 20 7490 4575", website: "https://www.pophamsbakery.com", hours: "8:00am-5:00pm", notes: "Flaky pastries and excellent coffee pairing.", tags: ["pastry", "brunch"] },
-        { id: 7, name: "Jolene Bakery", category: "bakery", lat: 51.5504, lng: -0.1088, area: "Newington Green", phone: "+44 20 7502 0998", website: "https://www.jolenecafe.com", hours: "8:30am-4:00pm", notes: "Natural wine bakery with superb viennoiserie.", tags: ["viennoiserie", "artisan"] },
-        { id: 8, name: "WatchHouse Somerset House", category: "cafe", lat: 51.5117, lng: -0.1177, area: "Strand", phone: "+44 20 3475 0775", website: "https://www.watchhouse.com", hours: "7:30am-6:00pm", notes: "High quality coffee in a refined central setting.", tags: ["flat white", "workspace"] },
-        { id: 9, name: "De Beauvoir Deli", category: "deli", lat: 51.5419, lng: -0.0846, area: "De Beauvoir", phone: "+44 20 7249 4321", website: "https://thedebeauvoirdeli.co.uk", hours: "Shop Mon-Sat 8am-8pm, Sun 9am-5pm", notes: "Artisan grocer, takeaway, and café on Southgate Road — cheeses, sandwiches, and brunch favourites.", tags: ["deli", "brunch"] },
-        { id: 10, name: "Tom's Pasta", category: "restaurant", lat: 51.5543, lng: -0.0663, area: "Hackney Downs", phone: "", website: "https://www.tomspasta.co.uk", hours: "Tue-Sat 5:30pm-11pm", notes: "Handmade pasta and lasagne at Hackney Downs Studios — book ahead for dinner.", tags: ["pasta", "italian"] }
-      ];
-
-      const STORAGE_KEYS = {
-        cmsPlaces: "wm-cms-places",
-        publicLikes: "wm-public-likes",
-        publicSaves: "wm-public-saves"
-      };
-
-      function encodeSharePayload(payload) {
-        return btoa(unescape(encodeURIComponent(JSON.stringify(payload))))
-          .replace(/\+/g, "-")
-          .replace(/\//g, "_")
-          .replace(/=+$/, "");
-      }
-
-      function decodeSharePayload(value) {
-        try {
-          const normalized = value.replace(/-/g, "+").replace(/_/g, "/");
-          const padded = normalized + "=".repeat((4 - (normalized.length % 4 || 4)) % 4);
-          return JSON.parse(decodeURIComponent(escape(atob(padded))));
-        } catch (error) {
-          return null;
-        }
-      }
-
-      function sanitizePlace(raw, id) {
-        if (!raw || !raw.name || !raw.category || !categories[raw.category]) return null;
-        const lat = Number(raw.lat);
-        const lng = Number(raw.lng);
-        if (!Number.isFinite(lat) || !Number.isFinite(lng)) return null;
-        const gallery = Array.isArray(raw.galleryUrls)
-          ? raw.galleryUrls
-          : String(raw.galleryUrls || "")
-              .split(",")
-              .map((url) => url.trim())
-              .filter(Boolean);
-        const socials = raw.socials && typeof raw.socials === "object" ? raw.socials : {
-          instagram: raw.instagram,
-          tiktok: raw.tiktok,
-          x: raw.x,
-          youtube: raw.youtube
+      const places = [
+        { id: 1, name: "Monmouth Coffee", category: "cafe", area: "Borough", lat: 51.5139, lng: -0.0934, note: "Top single-origin espresso near Borough Market." },
+        { id: 2, name: "Regency Cafe", category: "cafe", area: "Pimlico", lat: 51.4937, lng: -0.1327, note: "Old-school London breakfast counter with a lot of character." },
+        { id: 3, name: "Kiss the Hippo Fitzrovia", category: "cafe", area: "Fitzrovia", lat: 51.5185, lng: -0.1368, note: "Specialty brews with polished interiors." },
+        { id: 4, name: "Fortitude Bakehouse", category: "bakery", area: "Bloomsbury", lat: 51.5186, lng: -0.1317, note: "Excellent laminated pastries and seasonal bakes." },
+        { id: 5, name: "The Dusty Knuckle Bakery", category: "bakery", area: "Dalston", lat: 51.5493, lng: -0.0707, note: "Sourdough and savory buns worth the queue." },
+        { id: 6, name: "Pophams Islington", category: "bakery", area: "Islington", lat: 51.5407, lng: -0.1028, note: "Flaky pastries and strong coffee pairing." },
+        { id: 7, name: "Jolene Bakery", category: "bakery", area: "Newington Green", lat: 51.5504, lng: -0.1088, note: "Natural wine bakery with superb viennoiserie." },
+        { id: 8, name: "WatchHouse Somerset House", category: "cafe", area: "Strand", lat: 51.5117, lng: -0.1177, note: "High quality coffee in a refined setting." },
+        { id: 9, name: "De Beauvoir Deli", category: "deli", area: "De Beauvoir", lat: 51.5419, lng: -0.0846, note: "Artisan grocer, takeaway, and brunch favorites." },
+        { id: 10, name: "Tom's Pasta", category: "restaurant", area: "Hackney Downs", lat: 51.5543, lng: -0.0663, note: "Handmade pasta and lasagne." }
+      ].map((p) => {
+        const extras = {
+          1: { phone: "+44 20 7378 7408", website: "https://www.monmouthcoffee.co.uk", hours: "7:30am-6:00pm", hashtags: ["specialty", "espresso"], socials: { instagram: "https://instagram.com/monmouthcoffee" }, description: "A calm Borough stop for a polished espresso and bean shopping." },
+          2: { phone: "+44 20 7821 6596", website: "https://instagram.com/regencycafe", hours: "7:00am-2:30pm", hashtags: ["breakfast", "classic"], socials: { instagram: "https://instagram.com/regencycafe" }, description: "Classic tiled London cafe known for hearty breakfasts." },
+          3: { phone: "+44 20 3948 4504", website: "https://www.kissthehippo.com", hours: "7:30am-6:00pm", hashtags: ["specialty", "pour-over"], socials: { instagram: "https://instagram.com/kissthehippo" }, description: "Specialty coffee with a bright, modern vibe in Fitzrovia." },
+          4: { phone: "+44 20 3105 0290", website: "https://www.fortitudebakehouse.com", hours: "8:00am-4:00pm", hashtags: ["pastries", "weekend"], socials: { instagram: "https://instagram.com/fortitudebakehouse" }, description: "Small bakery with standout laminated pastries and daily specials." },
+          5: { phone: "+44 20 7249 8222", website: "https://www.thedustyknuckle.com", hours: "8:00am-4:00pm", hashtags: ["sourdough", "bread"], socials: { instagram: "https://instagram.com/thedustyknuckle" }, description: "East London favorite for breads, buns, and seasonal sandwiches." },
+          6: { phone: "+44 20 7490 4575", website: "https://www.pophamsbakery.com", hours: "8:00am-5:00pm", hashtags: ["pastry", "brunch"], socials: { instagram: "https://instagram.com/pophamsbakery" }, description: "Elegant bakery with excellent viennoiserie and coffee pairings." },
+          7: { phone: "+44 20 7502 0998", website: "https://www.jolenecafe.com", hours: "8:30am-4:00pm", hashtags: ["viennoiserie", "artisan"], socials: { instagram: "https://instagram.com/jolene_ngr" }, description: "Neighborhood bakery and natural wine spot with artisan bakes." },
+          8: { phone: "+44 20 3475 0775", website: "https://www.watchhouse.com", hours: "7:30am-6:00pm", hashtags: ["flat-white", "workspace"], socials: { instagram: "https://instagram.com/watchhouse" }, description: "Refined coffee setting in Somerset House with plenty of seating." },
+          9: { phone: "+44 20 7249 4321", website: "https://thedebeauvoirdeli.co.uk", hours: "8:00am-8:00pm", hashtags: ["deli", "brunch"], socials: { instagram: "https://instagram.com/debeauvoirdeli" }, description: "Deli and cafe with quality pantry items and brunch staples." },
+          10: { phone: "", website: "https://www.tomspasta.co.uk", hours: "Tue-Sat 5:30pm-11:00pm", hashtags: ["pasta", "italian"], socials: { instagram: "https://instagram.com/tomspasta" }, description: "Handmade pasta counter known for rich sauces and lasagne." }
         };
-        return {
-          id,
-          name: String(raw.name).trim(),
-          category: raw.category,
-          status: String(raw.status || "published").toLowerCase() === "draft" ? "draft" : "published",
-          lat,
-          lng,
-          area: String(raw.area || "London").trim(),
-          phone: String(raw.phone || "").trim(),
-          website: String(raw.website || "").trim(),
-          summary: String(raw.summary || "").trim(),
-          hours: String(raw.hours || "Check website").trim(),
-          notes: String(raw.notes || "Added from your custom places.").trim(),
-          coverPhoto: String(raw.coverPhoto || "").trim(),
-          galleryUrls: gallery.slice(0, 8),
-          socials: {
-            instagram: String(socials.instagram || "").trim(),
-            tiktok: String(socials.tiktok || "").trim(),
-            x: String(socials.x || "").trim(),
-            youtube: String(socials.youtube || "").trim()
-          },
-          goodToKnow: Array.isArray(raw.goodToKnow)
-            ? raw.goodToKnow
-                .map((item) => String(item || "").trim())
-                .filter((key) => goodToKnowOptions.some((option) => option.key === key))
-                .slice(0, 8)
-            : [],
-          tags: Array.isArray(raw.tags)
-            ? raw.tags.map((tag) => String(tag).trim()).filter(Boolean).slice(0, 8)
-            : []
-        };
-      }
+        return Object.assign({
+          description: p.note,
+          hours: "Check website",
+          phone: "",
+          website: "",
+          hashtags: [],
+          socials: {},
+          liked: false,
+          saved: false
+        }, p, extras[p.id] || {});
+      });
 
-      function renderGoodToKnowChoices(selected) {
-        const active = new Set(Array.isArray(selected) ? selected : []);
-        placeGoodToKnowEl.innerHTML = goodToKnowOptions
-          .map((option) =>
-            '<label class="wm-checkbox">' +
-              '<input type="checkbox" name="goodToKnow" value="' + option.key + '" ' + (active.has(option.key) ? "checked" : "") + " />" +
-              "<span>" + option.label + "</span>" +
-            "</label>"
-          )
-          .join("");
-      }
-
-      function mergePlaces(a, b) {
-        const mapByKey = new Map();
-        [...a, ...b].forEach((place) => {
-          const key = [place.name, place.category, Number(place.lat).toFixed(5), Number(place.lng).toFixed(5)].join("|");
-          if (!mapByKey.has(key)) mapByKey.set(key, place);
-        });
-        return Array.from(mapByKey.values());
-      }
-
-      function normalizePlaceIds(list) {
-        const used = new Set();
-        let nextId = 1;
-        return list.map((place) => {
-          let id = Number(place.id);
-          if (!Number.isInteger(id) || id < 1 || used.has(id)) {
-            while (used.has(nextId)) nextId += 1;
-            id = nextId;
-          }
-          used.add(id);
-          return { ...place, id };
-        });
-      }
-
-      function sanitizeCustomList(rawList, startingId) {
-        if (!Array.isArray(rawList)) return [];
-        let id = startingId;
-        return rawList
-          .map((place) => {
-            const safe = sanitizePlace(place, id);
-            if (!safe) return null;
-            id += 1;
-            return safe;
-          })
-          .filter(Boolean);
-      }
-
-      function loadSharedState() {
-        const params = new URLSearchParams(window.location.search);
-        const encoded = params.get("wm");
-        if (!encoded) return null;
-        const decoded = decodeSharePayload(encoded);
-        if (!decoded || typeof decoded !== "object") return null;
-        return decoded;
-      }
-
-      const sharedState = loadSharedState();
-      const isPublicView = Boolean(sharedState && Array.isArray(sharedState.places));
-
-      function loadCmsPlaces() {
-        const raw = localStorage.getItem(STORAGE_KEYS.cmsPlaces);
-        if (!raw) return normalizePlaceIds(BASE_PLACES);
-        try {
-          const parsed = JSON.parse(raw);
-          if (!Array.isArray(parsed)) return normalizePlaceIds(BASE_PLACES);
-          return normalizePlaceIds(
-            parsed
-              .map((place, index) => sanitizePlace(place, index + 1))
-              .filter(Boolean)
-          );
-        } catch (error) {
-          return normalizePlaceIds(BASE_PLACES);
-        }
-      }
-
-      function saveCmsPlaces() {
-        if (isPublicView) return;
-        localStorage.setItem(STORAGE_KEYS.cmsPlaces, JSON.stringify(places));
-      }
-
-      let places = isPublicView
-        ? normalizePlaceIds(
-          sanitizeCustomList(Array.isArray(sharedState?.places) ? sharedState.places : [], 1)
-        )
-        : loadCmsPlaces();
-      let nextPlaceId = Math.max(0, ...places.map((p) => Number(p.id) || 0)) + 1;
-
-      const state = {
-        activeCategory: "all",
-        selectedPlace: null,
-        sheetOpen: false,
-        sheetClosed: false,
-        publicLikes: JSON.parse(localStorage.getItem(STORAGE_KEYS.publicLikes) || "{}"),
-        publicSaves: JSON.parse(localStorage.getItem(STORAGE_KEYS.publicSaves) || "{}"),
-        groupOpen: { published: true, draft: true }
-      };
-
-      const map = L.map("map", { zoomControl: false }).setView([51.5074, -0.1278], 12);
-      L.tileLayer("https://{s}.basemaps.cartocdn.com/rastertiles/voyager_nolabels/{z}/{x}/{y}{r}.png", {
+      const state = { active: "all", selectedId: null, panelCollapsed: false };
+      const map = L.map("map", { zoomControl: true }).setView([51.5074, -0.1278], 12);
+      L.tileLayer("https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png", {
         maxZoom: 20,
         subdomains: "abcd",
-        attribution: "&copy; OpenStreetMap contributors &copy; CARTO"
-      }).addTo(map);
-      L.tileLayer("https://{s}.basemaps.cartocdn.com/rastertiles/voyager_only_labels/{z}/{x}/{y}{r}.png", {
-        maxZoom: 20,
-        subdomains: "abcd",
-        pane: "overlayPane",
-        attribution: "&copy; OpenStreetMap contributors &copy; CARTO"
-      }).addTo(map);
-      L.control.zoom({ position: "topright" }).addTo(map);
-      L.marker([51.5074, -0.1278], {
-        interactive: false,
-        icon: L.divIcon({
-          className: "",
-          html: '<div class="wm-user-dot"></div>',
-          iconSize: [14, 14],
-          iconAnchor: [7, 7]
-        })
+        attribution: "&copy; OpenStreetMap &copy; CARTO"
       }).addTo(map);
 
       const markers = new Map();
-
-      const sheetEl = document.getElementById("sheet");
-      const categoriesEl = document.getElementById("categories");
-      const placeListEl = document.getElementById("placeList");
+      const chipsEl = document.getElementById("chips");
+      const listEl = document.getElementById("list");
       const detailEl = document.getElementById("detail");
       const resultCountEl = document.getElementById("resultCount");
-      const addModalEl = document.getElementById("addModal");
-      const addPlaceFormEl = document.getElementById("addPlaceForm");
-      const addPlaceBtnEl = document.getElementById("addPlaceBtn");
-      const closeAddModalEl = document.getElementById("closeAddModal");
-      const useMapCenterBtnEl = document.getElementById("useMapCenterBtn");
-      const shareBtnSheetEl = document.getElementById("shareBtnSheet");
-      const shareBtnHeaderEl = document.getElementById("shareBtnHeader");
-      const placeCategoryEl = document.getElementById("placeCategory");
-      const placeModalTitleEl = document.getElementById("placeModalTitle");
-      const savePlaceBtnEl = document.getElementById("savePlaceBtn");
-      const editingPlaceIdEl = document.getElementById("editingPlaceId");
-      const modeBannerEl = document.getElementById("modeBanner");
-      const placeGoodToKnowEl = document.getElementById("placeGoodToKnow");
-      const openSheetBtnEl = document.getElementById("openSheetBtn");
+      const panelEl = document.querySelector(".panel");
+      const panelToggleBtn = document.getElementById("panelToggleBtn");
+      const panelHintEl = document.getElementById("panelHint");
+      const panelGrabEl = document.getElementById("panelGrab");
+      const collapsedSummaryEl = document.getElementById("collapsedSummary");
 
-      function haversine(lat1, lon1, lat2, lon2) {
-        const toRad = (v) => (v * Math.PI) / 180;
-        const R = 6371;
-        const dLat = toRad(lat2 - lat1);
-        const dLon = toRad(lon2 - lon1);
-        const a =
-          Math.sin(dLat / 2) * Math.sin(dLat / 2) +
-          Math.cos(toRad(lat1)) * Math.cos(toRad(lat2)) *
-          Math.sin(dLon / 2) * Math.sin(dLon / 2);
-        const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
-        return (R * c).toFixed(1) + " km";
+      function filtered() {
+        return state.active === "all" ? places : places.filter((p) => p.category === state.active);
       }
 
-      function filteredPlaces() {
-        const visiblePlaces = isPublicView ? places.filter((p) => p.status !== "draft") : places;
-        if (state.activeCategory === "all") return visiblePlaces;
-        return visiblePlaces.filter((p) => p.category === state.activeCategory);
+      function hexToRgba(hex, alpha) {
+        const clean = String(hex || "").replace("#", "");
+        const full = clean.length === 3 ? clean.split("").map((c) => c + c).join("") : clean;
+        const r = parseInt(full.slice(0, 2), 16);
+        const g = parseInt(full.slice(2, 4), 16);
+        const b = parseInt(full.slice(4, 6), 16);
+        if ([r, g, b].some((n) => Number.isNaN(n))) return "rgba(255,255,255," + alpha + ")";
+        return "rgba(" + r + "," + g + "," + b + "," + alpha + ")";
       }
 
-      function contrastTextForBg(hex) {
-        if (!hex || typeof hex !== "string") return "#111827";
-        let h = hex.replace(/^#/, "");
-        if (h.length === 3) {
-          h = h.split("").map((c) => c + c).join("");
-        }
-        const r = parseInt(h.slice(0, 2), 16);
-        const g = parseInt(h.slice(2, 4), 16);
-        const b = parseInt(h.slice(4, 6), 16);
-        if (Number.isNaN(r) || Number.isNaN(g) || Number.isNaN(b)) return "#111827";
-        const y = (0.2126 * r + 0.7152 * g + 0.0722 * b) / 255;
-        return y > 0.62 ? "#111827" : "#ffffff";
-      }
-
-      function categoryListBadgeColors(hex) {
-        if (!hex || typeof hex !== "string") {
-          return { bg: "rgba(15, 23, 42, 0.08)", fg: "#3a3a3c" };
-        }
-        let h = hex.replace(/^#/, "");
-        if (h.length === 3) {
-          h = h.split("").map((c) => c + c).join("");
-        }
-        if (h.length !== 6) {
-          return { bg: "rgba(15, 23, 42, 0.08)", fg: "#3a3a3c" };
-        }
-        const r = parseInt(h.slice(0, 2), 16);
-        const g = parseInt(h.slice(2, 4), 16);
-        const b = parseInt(h.slice(4, 6), 16);
-        if (Number.isNaN(r) || Number.isNaN(g) || Number.isNaN(b)) {
-          return { bg: "rgba(15, 23, 42, 0.08)", fg: "#3a3a3c" };
-        }
-        const a = 0.2;
-        return {
-          bg: "rgba(" + r + ", " + g + ", " + b + ", " + a + ")",
-          fg: hex
-        };
-      }
-
-      function openPlaceById(id) {
-        const place = places.find((p) => Number(p.id) === Number(id));
-        openPlace(place);
-      }
-
-      function ensureMarkerForPlace(place) {
-        if (markers.has(place.id)) return;
-        const cat = categories[place.category];
-        if (!cat) return;
-        const categoryColor = getCategoryColor(place.category);
-        const pinBg = pinGradientBackground(categoryColor);
-        const marker = L.marker([place.lat, place.lng], {
-          icon: L.divIcon({
-            className: "",
-            html:
-              '<div class="pin" style="background:' + pinBg + ";color:#ffffff">' +
-              icons[cat.icon] +
-              "</div>",
-            iconSize: [26, 26],
-            iconAnchor: [13, 13]
-          })
+      function makePin(place) {
+        const color = categoryColors[place.category] || categoryColors.all;
+        return L.divIcon({
+          className: "",
+          html: '<div class="pin" style="background:' + color + ';">' + place.name.slice(0, 1).toUpperCase() + "</div>",
+          iconSize: [28, 28],
+          iconAnchor: [14, 14]
         });
-        marker.on("click", () => openPlaceById(place.id));
-        marker.addTo(map);
-        markers.set(place.id, marker);
       }
 
-      function updatePrivateModeBanner() {
-        if (isPublicView || !modeBannerEl) return;
-        const desktop = window.matchMedia("(min-width: 1024px)").matches;
-        if (desktop) {
-          modeBannerEl.style.display = "block";
-          return;
-        }
-        modeBannerEl.style.display = state.sheetOpen ? "none" : "block";
-      }
-
-      function setSheet(open) {
-        if (window.matchMedia("(min-width: 1024px)").matches) {
-          state.sheetClosed = false;
-          sheetEl.classList.remove("closed");
-          openSheetBtnEl.style.display = "none";
-          state.sheetOpen = true;
-          sheetEl.classList.add("full");
-          sheetEl.classList.remove("peek");
-          updatePrivateModeBanner();
-          return;
-        }
-        state.sheetClosed = false;
-        sheetEl.classList.remove("closed");
-        openSheetBtnEl.style.display = "none";
-        state.sheetOpen = open;
-        sheetEl.classList.toggle("full", open);
-        sheetEl.classList.toggle("peek", !open);
-        updatePrivateModeBanner();
-      }
-
-      function flyToPlace(place) {
-        const zoom = 15;
-        if (window.matchMedia("(min-width: 1024px)").matches) {
-          const point = map.project([place.lat, place.lng], zoom);
-          const shiftedPoint = L.point(point.x - 190, point.y);
-          const shiftedLatLng = map.unproject(shiftedPoint, zoom);
-          map.flyTo(shiftedLatLng, zoom, { duration: 0.8 });
-          return;
-        }
-        map.flyTo([place.lat, place.lng], zoom, { duration: 0.8 });
-      }
-
-      function visiblePlacesForSheet() {
-        return isPublicView ? places.filter((p) => p.status !== "draft") : places;
-      }
-
-      function renderCategories() {
-        const vis = visiblePlacesForSheet();
-        const entries = [{ key: "all", label: "All", icon: "all", color: CATEGORY_COLORS.all, count: vis.length }].concat(
-          Object.entries(categories).map(([key, value]) => ({
-            key,
-            label: value.label,
-            icon: value.icon,
-            color: getCategoryColor(key),
-            count: vis.filter((p) => p.category === key).length
-          }))
-        );
-        categoriesEl.innerHTML = entries
-          .map((c) => {
-            const active = c.key === state.activeCategory;
-            const n = typeof c.count === "number" ? c.count : 0;
-            const aria =
-              c.label + ", " + n + " " + (n === 1 ? "place" : "places");
-            return (
-              '<button type="button" class="wm-pill ' + (active ? "active" : "") + '" data-category="' + c.key + '"' +
-              ' aria-label="' +
-              aria.replace(/&/g, "&amp;").replace(/"/g, "&quot;").replace(/</g, "&lt;") +
-              '">' +
-              '<span class="wm-pill-label">' +
-              icons[c.icon] +
-              '<span class="wm-pill-text">' +
-              c.label +
-              "</span></span>" +
-              '<span class="wm-pill-count" aria-hidden="true">' +
-              n +
-              "</span>" +
-              "</button>"
-            );
-          })
-          .join("");
-
-        categoriesEl.querySelectorAll(".wm-pill").forEach((pill) => {
-          const c = entries.find((entry) => entry.key === pill.dataset.category);
-          if (c) {
-            const badge = categoryListBadgeColors(c.color);
-            const isActive = pill.classList.contains("active");
-            pill.style.setProperty("--pill-primary", c.color);
-            if (isActive) {
-              pill.style.setProperty("background-color", c.color, "important");
-              pill.style.setProperty("color", "#ffffff", "important");
-            } else {
-              pill.style.setProperty("background-color", badge.bg, "important");
-              pill.style.setProperty("color", c.color, "important");
-            }
-          }
-          pill.addEventListener("click", () => {
-            state.activeCategory = pill.dataset.category;
-            renderList();
-            renderCategories();
-            syncMarkerVisibility();
-          });
-        });
+      function renderChips() {
+        const entries = [{ key: "all", label: "All" }].concat(Object.entries(categories).map(([k, label]) => ({ key: k, label })));
+        chipsEl.innerHTML = entries.map((e) => {
+          const n = e.key === "all" ? places.length : places.filter((p) => p.category === e.key).length;
+          const active = state.active === e.key ? "active" : "";
+          const color = categoryColors[e.key] || categoryColors.all;
+          const chipBg = hexToRgba(color, 0.2);
+          const chipBorder = hexToRgba(color, 0.32);
+          return '<button class="chip ' + active + '" data-k="' + e.key + '" style="--chip-color:' + color + ";--chip-bg:" + chipBg + ";--chip-border:" + chipBorder + '">' + e.label + ' <span class="count">' + n + "</span></button>";
+        }).join("");
+        chipsEl.querySelectorAll(".chip").forEach((b) => b.addEventListener("click", () => {
+          state.active = b.dataset.k;
+          state.selectedId = null;
+          detailEl.classList.remove("open");
+          renderAll();
+        }));
       }
 
       function renderList() {
-        const list = filteredPlaces();
+        const list = filtered();
         resultCountEl.textContent = list.length + " saved places";
-        const placeCard = (place) => {
-          const cat = categories[place.category];
-          const badge = categoryListBadgeColors(cat.color);
-          return (
-            '<button class="wm-place" data-id="' + place.id + '">' +
-            '<div class="wm-place-emoji" style="background-color:' + badge.bg + ";color:" + badge.fg + '">' +
-              icons[cat.icon] +
-              "</div>" +
-            "<div><h3>" + place.name + "</h3><p>" + cat.label + " • " + place.area + "</p></div>" +
-            '<span class="wm-chevron">›</span>' +
-            "</button>"
-          );
-        };
-
-        if (isPublicView) {
-          placeListEl.innerHTML = list.map(placeCard).join("");
-        } else {
-          const groups = [
-            { key: "published", label: "Published", items: list.filter((p) => (p.status || "published") === "published") },
-            { key: "draft", label: "Draft", items: list.filter((p) => (p.status || "published") === "draft") }
-          ];
-          placeListEl.innerHTML = groups
-            .map((group) => {
-              const open = state.groupOpen[group.key];
-              const content = group.items.length
-                ? group.items.map(placeCard).join("")
-                : '<div class="wm-empty">No places in this section.</div>';
-              return (
-                '<section class="wm-accordion" data-group="' + group.key + '">' +
-                '<button class="wm-accordion-header" type="button" data-toggle-group="' + group.key + '">' +
-                "<span>" + group.label + " (" + group.items.length + ")</span>" +
-                '<span class="wm-accordion-chevron">' + (open ? "▾" : "▸") + "</span>" +
-                "</button>" +
-                '<div class="wm-accordion-body ' + (open ? "open" : "") + '">' + content + "</div>" +
-                "</section>"
-              );
-            })
-            .join("");
-
-          placeListEl.querySelectorAll("[data-toggle-group]").forEach((button) => {
-            button.addEventListener("click", () => {
-              const key = button.dataset.toggleGroup;
-              state.groupOpen[key] = !state.groupOpen[key];
-              renderList();
-            });
-          });
-        }
-
-        placeListEl.querySelectorAll(".wm-place").forEach((btn) => {
-          btn.addEventListener("click", () => {
-            openPlaceById(btn.dataset.id);
-          });
-        });
+        const selectedPlace = places.find((p) => p.id === state.selectedId);
+        collapsedSummaryEl.textContent = selectedPlace
+          ? selectedPlace.name + " · " + categories[selectedPlace.category]
+          : list.length + " saved places";
+        listEl.innerHTML = list.map((p) => {
+          const color = categoryColors[p.category] || categoryColors.all;
+          const glyph = categories[p.category].slice(0, 1).toUpperCase();
+          const selectedClass = state.selectedId === p.id ? "selected" : "";
+          return '<article class="place ' + selectedClass + '" data-id="' + p.id + '">' +
+            '<div class="dot" style="background:' + color + '">' + glyph + "</div>" +
+            "<div><h4>" + p.name + "</h4><p>" + categories[p.category] + " · " + p.area + "</p></div>" +
+            '<div class="arrow">›</div>' +
+          "</article>";
+        }).join("");
+        listEl.querySelectorAll(".place").forEach((row) => row.addEventListener("click", () => openPlace(Number(row.dataset.id))));
       }
 
-      function renderDetail(place) {
-        if (!place) return;
-        const cat = categories[place.category];
-        const userPos = map.getCenter();
-        const distance = haversine(userPos.lat, userPos.lng, place.lat, place.lng);
-        const showCmsActions = !isPublicView;
-        const isLiked = Boolean(state.publicLikes[String(place.id)]);
-        const isSaved = Boolean(state.publicSaves[String(place.id)]);
-        const coverPhoto = place.coverPhoto ? '<img class="wm-cover" src="' + place.coverPhoto + '" alt="' + place.name + ' cover photo" />' : "";
-        const gallery = Array.isArray(place.galleryUrls)
-          ? place.galleryUrls.filter(Boolean).slice(0, 8)
-          : [];
-        const galleryHtml = gallery.length
-          ? '<div class="wm-gallery">' + gallery.map((url) => '<img src="' + url + '" alt="' + place.name + ' photo" loading="lazy" />').join("") + "</div>"
-          : "";
-        const socials = place.socials || {};
-        const socialLinks = [
-          { key: "instagram", label: "Instagram" },
-          { key: "tiktok", label: "TikTok" },
-          { key: "x", label: "X" },
-          { key: "youtube", label: "YouTube" }
-        ].filter((item) => socials[item.key]);
-        const summaryText = place.summary || place.notes || "";
-        const socialsHtml = socialLinks.length
-          ? '<div class="wm-socials">' +
-              socialLinks.map((item) => '<a class="wm-mini-btn" href="' + socials[item.key] + '" target="_blank" rel="noopener noreferrer">' + item.label + "</a>").join("") +
-            "</div>"
-          : "";
-        const goodToKnow = Array.isArray(place.goodToKnow) ? place.goodToKnow : [];
-        const goodToKnowItems = goodToKnow
-          .map((key) => goodToKnowOptions.find((option) => option.key === key))
-          .filter(Boolean);
-        const goodToKnowHtml = goodToKnowItems.length
-          ? '<h4 class="wm-good-title">Good to Know</h4>' +
-            '<div class="wm-good-list">' +
-              goodToKnowItems.map((item) => '<div class="wm-good-item">' + item.icon + "<span>" + item.label + "</span></div>").join("") +
-            "</div>"
-          : "";
-
-        detailEl.innerHTML =
-          '<div class="wm-detail-top">' +
-          "<div>" +
-          "<h2>" + place.name + "</h2>" +
-          '<div class="wm-detail-sub" style="display:flex;align-items:center;gap:6px;">' + icons[cat.icon] + "<span>" + cat.label + " • " + place.area + "</span></div>" +
-          (summaryText ? '<p class="wm-detail-copy">' + summaryText + "</p>" : "") +
-          "</div>" +
-          '<button class="wm-close" id="closeDetail" aria-label="Close details">✕</button>' +
-          "</div>" +
-          '<div class="wm-actions">' +
-          '<button class="wm-action" id="actDirections">Directions</button>' +
-          '<button class="wm-action" id="actCall">Call</button>' +
-          '<button class="wm-action" id="actWebsite">Website</button>' +
-          "</div>" +
-          '<div class="wm-split"><div><div class="wm-k">Hours</div><div class="wm-v">' + place.hours + '</div></div>' +
-          '<div><div class="wm-k">Distance</div><div class="wm-v">' + distance + "</div></div></div>" +
-          (isPublicView
-            ? '<div class="wm-public-actions">' +
-                '<button id="likePlaceBtn" class="wm-like-btn ' + (isLiked ? "on" : "") + '" type="button">' +
-                  (isLiked ? "♥ Liked" : "♡ Like") +
-                "</button>" +
-                '<button id="savePlaceBtnPublic" class="wm-save-btn ' + (isSaved ? "on" : "") + '" type="button">' +
-                  (isSaved ? "✓ Saved" : "+ Save") +
-                "</button>" +
-              "</div>"
-            : "") +
-          coverPhoto +
-          galleryHtml +
-          socialsHtml +
-          goodToKnowHtml +
-          '<div class="wm-notes"><h4>Personal Notes</h4><p>' + place.notes + "</p></div>" +
-          '<div class="wm-tags">' + place.tags.map((tag) => '<span class="wm-tag">#' + tag + "</span>").join("") + "</div>" +
-          (showCmsActions
-            ? '<div class="wm-actions" style="margin-top:10px;grid-template-columns:1fr 1fr;">' +
-                '<button class="wm-mini-btn primary" id="toggleStatusBtn" type="button">' + (place.status === "draft" ? "Publish" : "Revert to Draft") + "</button>" +
-                '<button class="wm-mini-btn" id="editPlaceBtn" type="button">Edit Place</button>' +
-              "</div>" +
-              '<div class="wm-actions" style="margin-top:8px;grid-template-columns:1fr;">' +
-                '<button class="wm-mini-btn danger" id="deletePlaceBtn" type="button">Delete Place</button>' +
-              "</div>"
-            : "");
-
-        document.getElementById("closeDetail").addEventListener("click", closeDetail);
-        document.getElementById("actDirections").addEventListener("click", () => {
-          const url = "https://www.google.com/maps/dir/?api=1&destination=" + place.lat + "," + place.lng;
-          window.open(url, "_blank");
-        });
-        document.getElementById("actCall").addEventListener("click", () => {
-          window.location.href = "tel:" + place.phone.replace(/\s+/g, "");
-        });
-        document.getElementById("actWebsite").addEventListener("click", () => window.open(place.website, "_blank"));
-        if (isPublicView) {
-          document.getElementById("likePlaceBtn").addEventListener("click", () => {
-            const key = String(place.id);
-            state.publicLikes[key] = !state.publicLikes[key];
-            localStorage.setItem(STORAGE_KEYS.publicLikes, JSON.stringify(state.publicLikes));
-            renderDetail(place);
-          });
-          document.getElementById("savePlaceBtnPublic").addEventListener("click", () => {
-            const key = String(place.id);
-            state.publicSaves[key] = !state.publicSaves[key];
-            localStorage.setItem(STORAGE_KEYS.publicSaves, JSON.stringify(state.publicSaves));
-            renderDetail(place);
-          });
-        }
-        if (showCmsActions) {
-          document.getElementById("toggleStatusBtn").addEventListener("click", () => {
-            const nextStatus = place.status === "draft" ? "published" : "draft";
-            places = places.map((item) =>
-              Number(item.id) === Number(place.id) ? { ...item, status: nextStatus } : item
-            );
-            saveCmsPlaces();
-            const updated = places.find((item) => Number(item.id) === Number(place.id));
-            renderList();
-            renderCategories();
-            syncMarkerVisibility();
-            openPlace(updated);
-          });
-          document.getElementById("editPlaceBtn").addEventListener("click", () => openEditModal(place));
-          document.getElementById("deletePlaceBtn").addEventListener("click", () => {
-            const confirmed = window.confirm("Delete this place from your CMS?");
-            if (!confirmed) return;
-            places = places.filter((p) => Number(p.id) !== Number(place.id));
-            places = normalizePlaceIds(places);
-            nextPlaceId = Math.max(0, ...places.map((p) => Number(p.id) || 0)) + 1;
-            saveCmsPlaces();
-            if (state.activeCategory !== "all" && filteredPlaces().length === 0) {
-              state.activeCategory = "all";
-              renderCategories();
-            }
-            closeDetail();
-            renderList();
-            syncMarkerVisibility();
-          });
-        }
-      }
-
-      function openPlace(place) {
-        if (!place) return;
-        state.selectedPlace = place;
-        flyToPlace(place);
-        renderDetail(place);
-        detailEl.classList.add("open");
-      }
-
-      function closeDetail() {
-        state.selectedPlace = null;
-        detailEl.classList.remove("open");
-      }
-
-      function syncMarkerVisibility() {
-        places.forEach((place) => ensureMarkerForPlace(place));
-        const visible = new Set(filteredPlaces().map((p) => p.id));
-        places.forEach((place) => {
-          const marker = markers.get(place.id);
-          if (!marker) return;
-          if (visible.has(place.id)) marker.addTo(map);
+      function syncMarkers() {
+        const visible = new Set(filtered().map((p) => p.id));
+        places.forEach((p) => {
+          if (!markers.has(p.id)) {
+            const m = L.marker([p.lat, p.lng], { icon: makePin(p) }).addTo(map);
+            m.on("click", () => openPlace(p.id));
+            markers.set(p.id, m);
+          }
+          const marker = markers.get(p.id);
+          if (visible.has(p.id)) marker.addTo(map);
           else map.removeLayer(marker);
         });
       }
 
-      function openAddModal() {
-        const center = map.getCenter();
-        addPlaceFormEl.reset();
-        editingPlaceIdEl.value = "";
-        placeModalTitleEl.textContent = "Add Place";
-        savePlaceBtnEl.textContent = "Save Place";
-        renderGoodToKnowChoices([]);
-        document.getElementById("placeLat").value = center.lat.toFixed(6);
-        document.getElementById("placeLng").value = center.lng.toFixed(6);
-        document.getElementById("placeStatus").value = "published";
-        addModalEl.classList.add("open");
-        addModalEl.setAttribute("aria-hidden", "false");
+      function asTelHref(phone) {
+        const digits = String(phone || "").replace(/\s+/g, "");
+        return digits ? "tel:" + digits : "";
       }
 
-      function openEditModal(place) {
-        if (!place) return;
-        addPlaceFormEl.reset();
-        editingPlaceIdEl.value = String(place.id);
-        placeModalTitleEl.textContent = "Edit Place";
-        savePlaceBtnEl.textContent = "Update Place";
-        document.getElementById("placeName").value = place.name || "";
-        document.getElementById("placeCategory").value = place.category || "cafe";
-        document.getElementById("placeArea").value = place.area || "";
-        document.getElementById("placeLat").value = Number(place.lat).toFixed(6);
-        document.getElementById("placeLng").value = Number(place.lng).toFixed(6);
-        document.getElementById("placeWebsite").value = place.website || "";
-        document.getElementById("placeSummary").value = place.summary || "";
-        document.getElementById("placeCoverPhoto").value = place.coverPhoto || "";
-        document.getElementById("placeGalleryUrls").value = Array.isArray(place.galleryUrls) ? place.galleryUrls.join(", ") : "";
-        document.getElementById("placePhone").value = place.phone || "";
-        document.getElementById("placeHours").value = place.hours || "";
-        document.getElementById("placeStatus").value = place.status || "published";
-        document.getElementById("placeTags").value = Array.isArray(place.tags) ? place.tags.join(", ") : "";
-        renderGoodToKnowChoices(place.goodToKnow || []);
-        document.getElementById("placeInstagram").value = place.socials?.instagram || "";
-        document.getElementById("placeTiktok").value = place.socials?.tiktok || "";
-        document.getElementById("placeX").value = place.socials?.x || "";
-        document.getElementById("placeYoutube").value = place.socials?.youtube || "";
-        document.getElementById("placeNotes").value = place.notes || "";
-        addModalEl.classList.add("open");
-        addModalEl.setAttribute("aria-hidden", "false");
+      function safeUrl(url) {
+        if (!url) return "";
+        return /^https?:\/\//i.test(url) ? url : "https://" + url;
       }
 
-      function closeAddModal() {
-        addModalEl.classList.remove("open");
-        addModalEl.setAttribute("aria-hidden", "true");
+      function socialLinksHtml(socials) {
+        const links = [];
+        if (socials.instagram) links.push('<a class="social-link" target="_blank" rel="noopener noreferrer" href="' + safeUrl(socials.instagram) + '">Instagram</a>');
+        if (socials.tiktok) links.push('<a class="social-link" target="_blank" rel="noopener noreferrer" href="' + safeUrl(socials.tiktok) + '">TikTok</a>');
+        if (socials.x) links.push('<a class="social-link" target="_blank" rel="noopener noreferrer" href="' + safeUrl(socials.x) + '">X</a>');
+        if (socials.youtube) links.push('<a class="social-link" target="_blank" rel="noopener noreferrer" href="' + safeUrl(socials.youtube) + '">YouTube</a>');
+        return links.join("");
       }
 
-      function copyShareLink() {
-        const payload = {
-          v: 1,
-          places
-        };
-        const encoded = encodeSharePayload(payload);
-        const url = new URL(window.location.href);
-        url.searchParams.set("wm", encoded);
-        const shareUrl = url.toString();
-
-        if (navigator.clipboard && navigator.clipboard.writeText) {
-          navigator.clipboard.writeText(shareUrl)
-            .then(() => window.alert("Public read-only link copied. Anyone with this link can view these places."))
-            .catch(() => window.prompt("Copy your public share link:", shareUrl));
-        } else {
-          window.prompt("Copy your public share link:", shareUrl);
-        }
-      }
-
-      function populateCategoryField() {
-        placeCategoryEl.innerHTML = Object.entries(categories)
-          .map(([key, value]) => '<option value="' + key + '">' + value.label + "</option>")
-          .join("");
-      }
-
-      const sheetDrag = {
-        active: false,
-        pointerId: null,
-        startY: 0,
-        startX: 0,
-        startOpen: false,
-        listScroll: 0,
-        origin: null,
-        cancelled: false,
-        windowBound: false
-      };
-
-      function sheetDragInteractiveBlocked(target) {
-        return Boolean(target.closest("button, a, input, select, textarea, .wm-place"));
-      }
-
-      function sheetDragTargetAllowsStart(target) {
-        if (sheetDragInteractiveBlocked(target)) return false;
-        return Boolean(target.closest("#sheet"));
-      }
-
-      function cleanupSheetWindowDrag() {
-        if (!sheetDrag.windowBound) return;
-        window.removeEventListener("pointermove", onSheetWindowPointerMove);
-        window.removeEventListener("pointerup", onSheetWindowPointerUp);
-        window.removeEventListener("pointercancel", onSheetWindowPointerCancel);
-        sheetDrag.windowBound = false;
-      }
-
-      function applyVerticalSheetGesture(clientY) {
-        if (sheetDrag.cancelled) return;
-        const delta = clientY - sheetDrag.startY;
-        if (Math.abs(delta) < 10) {
-          setSheet(!sheetDrag.startOpen);
-        } else if (delta < 0) {
-          setSheet(true);
-        } else {
-          setSheet(false);
-        }
-      }
-
-      function onSheetWindowPointerMove(event) {
-        if (event.pointerId !== sheetDrag.pointerId) return;
-        const dx = event.clientX - sheetDrag.startX;
-        const dy = event.clientY - sheetDrag.startY;
-        if (sheetDrag.origin === "categories" && (Math.abs(dx) > 8 || Math.abs(dy) > 8)) {
-          if (Math.abs(dx) >= Math.abs(dy)) {
-            sheetDrag.cancelled = true;
-          }
-        }
-        if (sheetDrag.origin === "list" && placeListEl.scrollTop > sheetDrag.listScroll + 1) {
-          sheetDrag.cancelled = true;
-        }
-      }
-
-      function onSheetWindowPointerUp(event) {
-        if (event.pointerId !== sheetDrag.pointerId) return;
-        cleanupSheetWindowDrag();
-        applyVerticalSheetGesture(event.clientY);
-        sheetDrag.active = false;
-      }
-
-      function onSheetWindowPointerCancel(event) {
-        if (event.pointerId !== sheetDrag.pointerId) return;
-        cleanupSheetWindowDrag();
-        sheetDrag.active = false;
-      }
-
-      function bindSheetWindowDrag() {
-        cleanupSheetWindowDrag();
-        sheetDrag.windowBound = true;
-        window.addEventListener("pointermove", onSheetWindowPointerMove, { passive: true });
-        window.addEventListener("pointerup", onSheetWindowPointerUp, { passive: true });
-        window.addEventListener("pointercancel", onSheetWindowPointerCancel, { passive: true });
-      }
-
-      function onSheetPointerDown(event) {
-        if (window.matchMedia("(min-width: 1024px)").matches) return;
-        if (!sheetDragTargetAllowsStart(event.target)) return;
-        if (sheetDrag.active) return;
-
-        const fromList = event.target.closest(".wm-list");
-        const fromCategories = event.target.closest(".wm-categories");
-
-        sheetDrag.active = true;
-        sheetDrag.pointerId = event.pointerId;
-        sheetDrag.startY = event.clientY;
-        sheetDrag.startX = event.clientX;
-        sheetDrag.startOpen = state.sheetOpen;
-        sheetDrag.listScroll = placeListEl.scrollTop;
-        sheetDrag.cancelled = false;
-        sheetDrag.origin = fromList ? "list" : fromCategories ? "categories" : "chrome";
-
-        if (fromList || fromCategories) {
-          bindSheetWindowDrag();
-          return;
-        }
-        try {
-          sheetEl.setPointerCapture(event.pointerId);
-        } catch (err) {
-          /* ignore */
-        }
-      }
-
-      function onSheetPointerUp(event) {
-        if (event.pointerId !== sheetDrag.pointerId) return;
-        if (sheetDrag.windowBound) return;
-        applyVerticalSheetGesture(event.clientY);
-        sheetDrag.active = false;
-        try {
-          sheetEl.releasePointerCapture(event.pointerId);
-        } catch (err) {
-          /* ignore */
-        }
-      }
-
-      function onSheetPointerCancel() {
-        if (sheetDrag.windowBound) return;
-        sheetDrag.active = false;
-      }
-
-      sheetEl.addEventListener("pointerdown", onSheetPointerDown);
-      sheetEl.addEventListener("pointerup", onSheetPointerUp);
-      sheetEl.addEventListener("pointercancel", onSheetPointerCancel);
-
-      map.on("click", closeDetail);
-      addPlaceBtnEl.addEventListener("click", openAddModal);
-      openSheetBtnEl.addEventListener("click", () => setSheet(false));
-      closeAddModalEl.addEventListener("click", closeAddModal);
-      addModalEl.addEventListener("click", (event) => {
-        if (event.target === addModalEl) closeAddModal();
-      });
-      useMapCenterBtnEl.addEventListener("click", () => {
-        const center = map.getCenter();
-        document.getElementById("placeLat").value = center.lat.toFixed(6);
-        document.getElementById("placeLng").value = center.lng.toFixed(6);
-      });
-      addPlaceFormEl.addEventListener("submit", (event) => {
-        event.preventDefault();
-        const formData = new FormData(addPlaceFormEl);
-        const editingId = Number(formData.get("editingPlaceId"));
-        const normalized = sanitizePlace({
-          name: formData.get("name"),
-          category: formData.get("category"),
-          status: formData.get("status"),
-          lat: formData.get("lat"),
-          lng: formData.get("lng"),
-          area: formData.get("area"),
-          phone: formData.get("phone"),
-          website: formData.get("website"),
-          summary: formData.get("summary"),
-          coverPhoto: formData.get("coverPhoto"),
-          galleryUrls: String(formData.get("galleryUrls") || "")
-            .split(",")
-            .map((url) => url.trim())
-            .filter(Boolean),
-          socials: {
-            instagram: formData.get("instagram"),
-            tiktok: formData.get("tiktok"),
-            x: formData.get("x"),
-            youtube: formData.get("youtube")
-          },
-          hours: formData.get("hours"),
-          notes: formData.get("notes"),
-          goodToKnow: formData.getAll("goodToKnow"),
-          tags: String(formData.get("tags") || "")
-            .split(",")
-            .map((tag) => tag.trim())
-            .filter(Boolean)
-        }, nextPlaceId);
-
-        if (!normalized) {
-          window.alert("Please provide valid name, category, and coordinates.");
-          return;
-        }
-
-        if (Number.isInteger(editingId) && editingId > 0) {
-          normalized.id = editingId;
-          places = places.map((place) => (Number(place.id) === editingId ? normalized : place));
-        } else {
-          nextPlaceId += 1;
-          places = normalizePlaceIds(mergePlaces(places, [normalized]));
-        }
-        nextPlaceId = Math.max(0, ...places.map((p) => Number(p.id) || 0)) + 1;
-        saveCmsPlaces();
+      function openPlace(id) {
+        const p = places.find((x) => x.id === id);
+        if (!p) return;
+        state.selectedId = id;
+        map.flyTo([p.lat, p.lng], 14, { duration: 0.7 });
+        const telHref = asTelHref(p.phone);
+        const websiteHref = safeUrl(p.website);
+        const hashtags = (p.hashtags || []).map((t) => '<span class="hash">#' + t + "</span>").join("");
+        detailEl.innerHTML =
+          "<h3>" + p.name + "</h3>" +
+          '<div class="meta">' + categories[p.category] + " · " + p.area + "</div>" +
+          '<div class="note">' + p.description + "</div>" +
+          '<div class="cta-row">' +
+            '<button class="cta-btn" id="dirBtn" type="button">Directions</button>' +
+            '<button class="cta-btn" id="callBtn" type="button">Call</button>' +
+            '<button class="cta-btn" id="webBtn" type="button">Website</button>' +
+          "</div>" +
+          '<div class="meta-grid">' +
+            '<div class="meta-box"><div class="meta-k">Hours</div><div class="meta-v">' + p.hours + "</div></div>" +
+            '<div class="meta-box"><div class="meta-k">Category</div><div class="meta-v">' + categories[p.category] + "</div></div>" +
+          "</div>" +
+          '<div class="pill-row">' +
+            '<button class="pill-btn" id="likeBtn" type="button">' + (p.liked ? "♥ Liked" : "♡ Like") + "</button>" +
+            '<button class="pill-btn" id="saveBtn" type="button">' + (p.saved ? "✓ Saved" : "+ Save") + "</button>" +
+          "</div>" +
+          '<div class="note" style="margin-top:10px;"><strong>Personal notes:</strong> ' + p.note + "</div>" +
+          '<div class="hashes">' + hashtags + "</div>" +
+          '<div class="socials">' + socialLinksHtml(p.socials || {}) + "</div>";
+        detailEl.classList.add("open");
         renderList();
-        renderCategories();
-        syncMarkerVisibility();
-        closeAddModal();
-        const addedPlace = places.find(
-          (p) => Number(p.id) === Number(normalized.id) ||
-            (p.name === normalized.name && p.category === normalized.category &&
-            Number(p.lat).toFixed(5) === Number(normalized.lat).toFixed(5) &&
-            Number(p.lng).toFixed(5) === Number(normalized.lng).toFixed(5))
-        );
-        openPlace(addedPlace);
-      });
-      shareBtnSheetEl.addEventListener("click", copyShareLink);
-      shareBtnHeaderEl.addEventListener("click", copyShareLink);
-      populateCategoryField();
-
-      if (isPublicView) {
-        addPlaceBtnEl.style.display = "none";
-      } else {
-        modeBannerEl.style.display = "block";
+        document.getElementById("dirBtn").addEventListener("click", () => {
+          const url = "https://www.google.com/maps/dir/?api=1&destination=" + p.lat + "," + p.lng;
+          window.open(url, "_blank");
+        });
+        document.getElementById("callBtn").addEventListener("click", () => {
+          if (!telHref) return;
+          window.location.href = telHref;
+        });
+        document.getElementById("webBtn").addEventListener("click", () => {
+          if (!websiteHref) return;
+          window.open(websiteHref, "_blank");
+        });
+        document.getElementById("likeBtn").addEventListener("click", () => {
+          p.liked = !p.liked;
+          openPlace(p.id);
+        });
+        document.getElementById("saveBtn").addEventListener("click", () => {
+          p.saved = !p.saved;
+          openPlace(p.id);
+        });
       }
 
-      setSheet(false);
-      renderCategories();
-      renderList();
-      syncMarkerVisibility();
-      window.addEventListener("resize", () => setSheet(state.sheetOpen));
+      function renderAll() {
+        renderChips();
+        renderList();
+        syncMarkers();
+      }
+
+      document.getElementById("shareBtn").addEventListener("click", () => {
+        const shareText = window.location.href;
+        if (navigator.clipboard && navigator.clipboard.writeText) {
+          navigator.clipboard.writeText(shareText).then(() => alert("Link copied."));
+        } else {
+          prompt("Copy link:", shareText);
+        }
+      });
+
+      function setPanelCollapsed(collapsed) {
+        state.panelCollapsed = collapsed;
+        panelEl.classList.toggle("collapsed", collapsed);
+        panelEl.classList.remove("snap-medium", "snap-full");
+        panelToggleBtn.textContent = collapsed ? "▴" : "▾";
+        panelToggleBtn.setAttribute("aria-label", collapsed ? "Expand panel" : "Collapse panel");
+        panelToggleBtn.setAttribute("aria-expanded", String(!collapsed));
+        panelHintEl.textContent = collapsed
+          ? "Card collapsed. Drag up or use the arrow to expand."
+          : "Drag the card down to collapse. Use the arrow near Share on desktop.";
+        requestAnimationFrame(() => map.invalidateSize({ animate: false }));
+      }
+
+      function setPanelSnap(mode) {
+        state.panelCollapsed = mode === "collapsed";
+        panelEl.classList.toggle("collapsed", mode === "collapsed");
+        panelEl.classList.toggle("snap-medium", mode === "medium");
+        panelEl.classList.toggle("snap-full", mode === "full");
+        panelToggleBtn.textContent = mode === "collapsed" ? "▴" : "▾";
+        panelToggleBtn.setAttribute("aria-expanded", String(mode !== "collapsed"));
+        panelHintEl.textContent =
+          mode === "collapsed"
+            ? "Collapsed. Drag up for medium/full."
+            : mode === "medium"
+            ? "Medium snap. Drag up for full or down to collapse."
+            : "Full snap. Drag down for medium/collapsed.";
+        requestAnimationFrame(() => map.invalidateSize({ animate: false }));
+      }
+      panelToggleBtn.addEventListener("click", () => {
+        setPanelCollapsed(!panelEl.classList.contains("collapsed"));
+      });
+
+      const panelDrag = { active: false, startY: 0, startMode: "full" };
+      panelGrabEl.addEventListener("pointerdown", (event) => {
+        panelDrag.active = true;
+        panelDrag.startY = event.clientY;
+        panelDrag.startMode = panelEl.classList.contains("collapsed")
+          ? "collapsed"
+          : panelEl.classList.contains("snap-medium")
+          ? "medium"
+          : "full";
+      });
+      panelGrabEl.addEventListener("pointerup", (event) => {
+        if (!panelDrag.active) return;
+        const dy = event.clientY - panelDrag.startY;
+        panelDrag.active = false;
+        if (Math.abs(dy) < 14) {
+          if (window.matchMedia("(max-width: 900px)").matches) {
+            if (panelDrag.startMode === "collapsed") setPanelSnap("medium");
+            else if (panelDrag.startMode === "medium") setPanelSnap("full");
+            else setPanelSnap("collapsed");
+          } else {
+            setPanelCollapsed(!panelEl.classList.contains("collapsed"));
+          }
+          return;
+        }
+        if (window.matchMedia("(max-width: 900px)").matches) {
+          if (dy < -18) {
+            if (panelDrag.startMode === "collapsed") setPanelSnap("medium");
+            else setPanelSnap("full");
+          } else {
+            if (panelDrag.startMode === "full") setPanelSnap("medium");
+            else setPanelSnap("collapsed");
+          }
+        } else {
+          if (dy > 0) setPanelCollapsed(true);
+          else setPanelCollapsed(false);
+        }
+      });
+      panelGrabEl.addEventListener("pointercancel", () => {
+        panelDrag.active = false;
+      });
+
+      renderAll();
+      requestAnimationFrame(() => map.invalidateSize({ animate: false }));
+      window.addEventListener("resize", () => map.invalidateSize({ animate: false }));
     </script>
   </body>
 </html>
